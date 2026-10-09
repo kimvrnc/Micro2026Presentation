@@ -7,6 +7,8 @@ M. Barbaresi, G. Gorla\*, E. Martinelli, K. Ranoco\*\*\*, J. M. Amigo, A. de Die
 
 **Live:** https://kimvrnc.github.io/Micro2026Presentation/
 
+![The flyer unfolding](assets/unfold.gif)
+
 The page shows the flyer as a real sheet of paper. The front cover swings open,
 then the tucked flap unfolds, exactly as the printed trifold does. Any panel can
 be opened at full resolution for reading.
