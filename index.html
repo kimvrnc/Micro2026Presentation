@@ -76,11 +76,14 @@
     margin-left:auto; text-align:right;
   }
   .meta a{
-    color:inherit; text-decoration:none;
-    border-bottom:1px solid rgba(239,234,220,.25);
-    transition:color .18s, border-color .18s;
+    color:inherit;
+    text-decoration:underline;
+    text-decoration-color:rgba(239,234,220,.28);
+    text-decoration-thickness:1px;
+    text-underline-offset:3px;
+    transition:color .18s, text-decoration-color .18s;
   }
-  .meta a:hover{color:var(--paper); border-bottom-color:var(--clay)}
+  .meta a:hover{color:var(--paper); text-decoration-color:var(--clay)}
   .meta a.me{color:var(--paper); font-weight:500}
   .meta a:focus-visible,
   .authors a:focus-visible{outline:2px solid var(--clay); outline-offset:2px; border-radius:2px}
@@ -92,10 +95,25 @@
   }
   .authors a:hover{border-bottom-color:var(--tan)}
   @media (max-width:640px){
-    .topbar{padding:11px 13px 8px; gap:10px}
+    .topbar{padding:10px 13px 7px; gap:8px 10px}
     .brand{font-size:10.5px; letter-spacing:.15em}
-    .meta{display:none}
     .tab{padding:6px 11px; font-size:10.5px; letter-spacing:.07em}
+    /* the byline drops onto its own row rather than disappearing */
+    .meta{
+      flex-basis:100%; order:3; margin-left:0;
+      text-align:center; font-size:10px; line-height:2;
+      letter-spacing:.01em;
+      text-wrap:balance;          /* no lone surname on the last line */
+    }
+    /* finger-sized hit area without disturbing the line box */
+    .meta a{
+      padding:5px 2px;
+      text-decoration-color:rgba(239,234,220,.36);
+      text-underline-offset:2px;
+    }
+  }
+  @media (max-width:380px){
+    .meta{font-size:9.5px}
   }
 
   .tabs{display:flex; gap:3px; background:rgba(239,234,220,.06); border-radius:999px; padding:3px}
@@ -498,12 +516,12 @@
       <button class="tab" id="tabTalk" role="tab" aria-selected="false">Walking&nbsp;Talk</button>
     </nav>
     <div class="meta">
-      <a href="https://www.linkedin.com/in/marta-barbaresi-26b236254/" target="_blank" rel="noopener noreferrer" title="Marta Barbaresi on LinkedIn">Barbaresi</a> ·
-      <a href="https://www.linkedin.com/in/giuliagorla95/" target="_blank" rel="noopener noreferrer" title="Giulia Gorla on LinkedIn">Gorla</a> ·
-      <a href="https://www.linkedin.com/in/elisabetta-martinelli0596/" target="_blank" rel="noopener noreferrer" title="Elisabetta Martinelli on LinkedIn">Martinelli</a> ·
-      <a class="me" href="https://www.linkedin.com/in/kimverlyranoco/" target="_blank" rel="noopener noreferrer" title="Kimverly Ranoco on LinkedIn">Ranoco</a> ·
-      <a href="https://www.linkedin.com/in/jos%C3%A9-manuel-amigo-rubio-41b9a73a/" target="_blank" rel="noopener noreferrer" title="José Manuel Amigo on LinkedIn">Amigo</a> ·
-      de Diego · Carrero · Mattarozzi · Careri
+      <a href="https://www.linkedin.com/in/marta-barbaresi-26b236254/" target="_blank" rel="noopener noreferrer" title="Marta Barbaresi on LinkedIn">Barbaresi</a>&nbsp;·
+      <a href="https://www.linkedin.com/in/giuliagorla95/" target="_blank" rel="noopener noreferrer" title="Giulia Gorla on LinkedIn">Gorla</a>&nbsp;·
+      <a href="https://www.linkedin.com/in/elisabetta-martinelli0596/" target="_blank" rel="noopener noreferrer" title="Elisabetta Martinelli on LinkedIn">Martinelli</a>&nbsp;·
+      <a class="me" href="https://www.linkedin.com/in/kimverlyranoco/" target="_blank" rel="noopener noreferrer" title="Kimverly Ranoco on LinkedIn">Ranoco</a>&nbsp;·
+      <a href="https://www.linkedin.com/in/jos%C3%A9-manuel-amigo-rubio-41b9a73a/" target="_blank" rel="noopener noreferrer" title="José Manuel Amigo on LinkedIn">Amigo</a>&nbsp;·
+      de&nbsp;Diego&nbsp;· Carrero&nbsp;· Mattarozzi&nbsp;· Careri
     </div>
   </header>
 
