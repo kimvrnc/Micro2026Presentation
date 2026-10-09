@@ -164,10 +164,12 @@
     transform-style:preserve-3d;
     will-change:transform;
   }
+  /* Which side shows is decided in JS from the panel's own normal, rather
+     than by backface-visibility. That property has to survive the whole
+     3D compositing path, and some embedded browsers drop the layer's
+     contents entirely and leave bare paper behind. */
   .face{
     position:absolute; inset:0;
-    backface-visibility:hidden;
-    -webkit-backface-visibility:hidden;
     overflow:hidden;
     background:var(--paper);
     box-shadow:0 0 0 .5px rgba(0,0,0,.28);
@@ -959,6 +961,14 @@ function applyPanel(P, ang, spinRad, creaseFront, creaseBack){
   var F = faceEls[P.key];
   shadeFace(F.front,  nf[0],  nf[1], creaseFront[0], creaseFront[1]);
   shadeFace(F.back,  -nf[0], -nf[1], creaseBack[0],  creaseBack[1]);
+
+  // only ever show the side actually turned towards the viewer
+  var frontUp = nf[1] >= 0;
+  if (F.frontUp !== frontUp){
+    F.frontUp = frontUp;
+    F.front.el.style.visibility = frontUp ? 'visible' : 'hidden';
+    F.back.el.style.visibility  = frontUp ? 'hidden'  : 'visible';
+  }
 }
 
 /* ============================================================
