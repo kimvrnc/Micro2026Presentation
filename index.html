@@ -545,7 +545,8 @@ var S = {
   parXT:0, parYT:0,
   anim:null,               // {from,to,t0,dur}
   dragging:false,
-  touched:false
+  touched:false,
+  hintAmt:1                // space reserved for the hint, eased away on first touch
 };
 
 /* ============================================================
@@ -687,7 +688,6 @@ function applyPanel(P, ang, spinRad, creaseFront, creaseBack){
 /* ============================================================
    render
    ============================================================ */
-var lastW = 0, lastH = 0;
 
 function render(){
   var A = angles(S.p);
@@ -713,7 +713,7 @@ function render(){
   var cw = stage.clientWidth, ch = stage.clientHeight;
   var pad = cw < 620 ? 22 : 42;
   // leave room for the floating hint so it never sits on the artwork
-  var hintH = hint.classList.contains('gone') ? 0 : 54;
+  var hintH = 54 * S.hintAmt;
   var s = Math.min((cw - pad*2) / wide, (ch - pad*2 - hintH) / PH);
   s = clamp(s, 0.1, 1.5);
 
@@ -735,7 +735,7 @@ function render(){
   ground.style.transform = 'translate(' + (-gw/2 - cx) + 'px,' + (PH/2 - gh/2 + 26) + 'px)';
   ground.style.opacity = (0.5 - S.p*0.16).toFixed(2);
 
-  if (cw !== lastW || ch !== lastH){ lastW = cw; lastH = ch; updateRotateTip(); }
+  updateRotateTip();
 }
 
 function labelFor(p){
@@ -755,9 +755,10 @@ function syncUI(){
 /* main loop */
 function frame(now){
   if (S.anim){
+    // linear in time: each panel already eases inside its own stage, so
+    // easing here too would make every fold hesitate at both ends
     var t = clamp((now - S.anim.t0) / S.anim.dur, 0, 1);
-    var e = easeInOutCubic(t);
-    S.p = S.pTarget = S.anim.from + (S.anim.to - S.anim.from) * e;
+    S.p = S.pTarget = S.anim.from + (S.anim.to - S.anim.from) * t;
     if (t >= 1) S.anim = null;
   } else if (!S.dragging){
     S.p += (S.pTarget - S.p) * 0.18;
@@ -769,6 +770,10 @@ function frame(now){
 
   S.parX += (S.parXT - S.parX) * 0.07;
   S.parY += (S.parYT - S.parY) * 0.07;
+
+  var hintGoal = S.touched ? 0 : 1;
+  S.hintAmt += (hintGoal - S.hintAmt) * 0.08;
+  if (Math.abs(hintGoal - S.hintAmt) < 0.002) S.hintAmt = hintGoal;
 
   render();
   syncUI();
@@ -863,13 +868,12 @@ stage.addEventListener('wheel', function(e){
   markTouched();
 }, { passive:false });
 
+var tipOn = null;
 function updateRotateTip(){
   var narrow = window.innerWidth < 560 && window.innerHeight > window.innerWidth;
-  rotateTip.classList.toggle('on', narrow && S.p > 0.6);
+  var want = narrow && S.p > 0.6;
+  if (want !== tipOn){ tipOn = want; rotateTip.classList.toggle('on', want); }
 }
-
-window.addEventListener('resize', function(){ lastW = 0; });
-window.addEventListener('orientationchange', function(){ lastW = 0; });
 
 /* ============================================================
    reader — full resolution, zoom & pan
