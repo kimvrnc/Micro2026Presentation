@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Micro2026 · Take-Home Flyer</title>
+<meta name="description" content="Towards Validated SWIR Hyperspectral Methods for Small Microplastic (≤100 µm) Detection in Water Filtration Samples — an unfoldable take-home flyer from Micro2026.">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Micro2026 · Take-Home Flyer">
+<meta property="og:description" content="Towards Validated SWIR Hyperspectral Methods for Small Microplastic (≤100 µm) Detection in Water Filtration Samples. Unfold the trifold.">
+<meta property="og:image" content="https://kimvrnc.github.io/Micro2026Presentation/assets/og.png">
+<meta property="og:url" content="https://kimvrnc.github.io/Micro2026Presentation/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#17150f">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2317150f'/%3E%3Crect x='7' y='6' width='6' height='20' fill='%23fbf9ec'/%3E%3Crect x='13.5' y='6' width='6' height='20' fill='%23c0775b'/%3E%3Crect x='20' y='6' width='6' height='20' fill='%23888970'/%3E%3C/svg%3E">
+<link rel="preload" as="image" href="assets/panels/o3-lo.webp">
+
+<style>
+  :root{
+    --paper:#fbf9ec;
+    --paper-warm:#f6efe2;
+    --sage:#888970;
+    --clay:#c0775b;
+    --cocoa:#643d26;
+    --tan:#d1ac96;
+
+    --bg:#17150f;
+    --bg-2:#201d15;
+    --ink:#efeadc;
+    --ink-dim:#a49d8b;
+    --line:rgba(239,234,220,.14);
+    --line-soft:rgba(239,234,220,.08);
+
+    --pad-top:env(safe-area-inset-top,0px);
+    --pad-bot:env(safe-area-inset-bottom,0px);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #2b2719 0%, transparent 60%),
+      radial-gradient(90% 70% at 50% 115%, #241f17 0%, transparent 65%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Avenir Next","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+    overscroll-behavior:none;
+  }
+
+  .app{
+    position:fixed; inset:0;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    padding-top:var(--pad-top);
+    padding-bottom:var(--pad-bot);
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+    padding:16px 22px 10px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .brand{
+    font-size:12px; letter-spacing:.19em; text-transform:uppercase;
+    color:var(--paper); font-weight:600;
+  }
+  .brand b{color:var(--clay); font-weight:600}
+  .meta{
+    font-size:12px; color:var(--ink-dim); letter-spacing:.04em;
+    margin-left:auto; text-align:right;
+  }
+  @media (max-width:640px){
+    .topbar{padding:11px 15px 8px}
+    .brand{font-size:10.5px; letter-spacing:.15em}
+    .meta{display:none}
+  }
+
+  /* ---------- stage ---------- */
+  .stage{
+    position:relative;
+    display:grid; place-items:center;
+    overflow:hidden;
+    touch-action:none;
+    cursor:grab;
+  }
+  .stage.dragging{cursor:grabbing}
+  .stage.reading{cursor:zoom-in}
+
+  .fit{ width:0; height:0; position:relative; }
+
+  .scene{
+    position:absolute; left:0; top:0; width:0; height:0;
+    perspective:2300px; perspective-origin:50% 50%;
+  }
+  .brochure{
+    position:absolute; left:0; top:0; width:0; height:0;
+    transform-style:preserve-3d;
+  }
+
+  .panel{
+    position:absolute;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .face{
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    overflow:hidden;
+    background:var(--paper);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.28);
+  }
+  .face.back{transform:rotateY(180deg)}
+  .face img{
+    display:block; width:100%; height:100%; object-fit:fill;
+    user-select:none; -webkit-user-drag:none; pointer-events:none;
+  }
+  /* lambert shading + crease gradient, driven from JS */
+  .face .shade{
+    position:absolute; inset:0; pointer-events:none;
+    background:#0b0a07;
+    opacity:0;
+  }
+  .face .crease{
+    position:absolute; inset:0; pointer-events:none;
+    opacity:0;
+  }
+  .face .crease.l{background:linear-gradient(90deg, rgba(0,0,0,.62), rgba(0,0,0,0) 42%)}
+  .face .crease.r{background:linear-gradient(270deg, rgba(0,0,0,.62), rgba(0,0,0,0) 42%)}
+  .face .sheen{
+    position:absolute; inset:0; pointer-events:none;
+    opacity:0; mix-blend-mode:screen;
+    background:linear-gradient(105deg, rgba(255,250,235,0) 30%, rgba(255,250,235,.5) 50%, rgba(255,250,235,0) 70%);
+  }
+
+  .ground{
+    position:absolute; left:0; top:0;
+    border-radius:50%;
+    background:radial-gradient(closest-side, rgba(0,0,0,.6), rgba(0,0,0,0));
+    filter:blur(16px);
+    pointer-events:none;
+  }
+
+  /* ---------- hint ---------- */
+  .hint{
+    position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
+    display:flex; align-items:center; gap:9px;
+    font-size:12px; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--ink-dim);
+    background:rgba(13,12,8,.86);
+    border:1px solid var(--line-soft);
+    padding:7px 14px; border-radius:999px;
+    backdrop-filter:blur(8px);
+    transition:opacity .5s ease;
+    pointer-events:none; white-space:nowrap;
+  }
+  .hint.gone{opacity:0}
+  .hint svg{opacity:.75}
+
+  .rotate-tip{
+    position:absolute; left:50%; top:16px; transform:translateX(-50%);
+    font-size:11px; letter-spacing:.08em; color:var(--ink-dim);
+    background:rgba(13,12,8,.72); border:1px solid var(--line-soft);
+    padding:6px 12px; border-radius:999px; backdrop-filter:blur(8px);
+    opacity:0; transition:opacity .4s; pointer-events:none;
+  }
+  .rotate-tip.on{opacity:1}
+
+  /* ---------- controls ---------- */
+  .controls{
+    display:flex; align-items:center; gap:16px;
+    padding:13px 22px 17px;
+    border-top:1px solid var(--line-soft);
+    background:linear-gradient(180deg, rgba(23,21,15,0), rgba(23,21,15,.5));
+  }
+
+  button{
+    font:inherit; color:inherit; cursor:pointer;
+    background:transparent; border:1px solid var(--line);
+    border-radius:999px; padding:9px 17px;
+    font-size:12.5px; letter-spacing:.08em; text-transform:uppercase;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:border-color .2s, background .2s, color .2s, transform .12s;
+    white-space:nowrap;
+  }
+  button:hover{border-color:rgba(239,234,220,.4); background:rgba(239,234,220,.05)}
+  button:active{transform:scale(.97)}
+  button:focus-visible{outline:2px solid var(--clay); outline-offset:2px}
+  button.primary{
+    background:var(--clay); border-color:var(--clay); color:#20150f; font-weight:600;
+  }
+  button.primary:hover{background:#cf8464; border-color:#cf8464}
+  button.icon{padding:9px 12px}
+
+  .scrub-wrap{flex:1; display:flex; align-items:center; gap:13px; min-width:0}
+  .scrub-label{
+    font-size:11px; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--ink-dim); width:98px; flex:none;
+  }
+  @media (max-width:760px){ .scrub-label{display:none} }
+
+  input[type=range]{
+    -webkit-appearance:none; appearance:none;
+    flex:1; min-width:0; height:26px; background:transparent; cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{
+    height:3px; border-radius:2px;
+    background:linear-gradient(90deg, var(--clay) var(--fill,0%), rgba(239,234,220,.16) var(--fill,0%));
+  }
+  input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:rgba(239,234,220,.16)}
+  input[type=range]::-moz-range-progress{height:3px;border-radius:2px;background:var(--clay)}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:15px; height:15px; margin-top:-6px;
+    border-radius:50%; background:var(--paper); border:none;
+    box-shadow:0 1px 6px rgba(0,0,0,.5);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:15px;height:15px;border-radius:50%;background:var(--paper);border:none;
+    box-shadow:0 1px 6px rgba(0,0,0,.5);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--clay); outline-offset:4px; border-radius:4px}
+
+  @media (max-width:640px){
+    .controls{padding:10px 13px 14px; gap:10px}
+    button{padding:8px 13px; font-size:11.5px; letter-spacing:.06em}
+    button.icon{padding:8px 10px}
+  }
+
+  /* ---------- loading ---------- */
+  .boot{
+    position:fixed; inset:0; display:grid; place-items:center;
+    background:var(--bg); z-index:60;
+    transition:opacity .6s ease;
+  }
+  .boot.gone{opacity:0; pointer-events:none}
+  .boot-inner{text-align:center}
+  .boot-bar{
+    width:150px; height:2px; background:rgba(239,234,220,.14);
+    border-radius:2px; overflow:hidden; margin:0 auto;
+  }
+  .boot-bar i{display:block; height:100%; width:0%; background:var(--clay); transition:width .3s ease}
+  .boot-txt{
+    margin-top:15px; font-size:11px; letter-spacing:.17em;
+    text-transform:uppercase; color:var(--ink-dim);
+  }
+
+  /* ---------- reader ---------- */
+  .reader{
+    position:fixed; inset:0; z-index:50;
+    background:#0a0906;
+    display:none; grid-template-rows:auto 1fr auto;
+    padding-top:var(--pad-top); padding-bottom:var(--pad-bot);
+  }
+  .reader.on{display:grid}
+  .reader-top{
+    display:flex; align-items:center; gap:14px;
+    padding:13px 18px; border-bottom:1px solid var(--line-soft);
+  }
+  .reader-title{
+    font-size:12.5px; letter-spacing:.06em; color:var(--paper);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .reader-title b{color:var(--ink-dim); font-weight:400; letter-spacing:.14em; text-transform:uppercase; font-size:10.5px; display:block; margin-bottom:3px}
+  .reader-top .spacer{flex:1}
+
+  .reader-view{
+    position:relative; overflow:hidden; touch-action:none;
+    cursor:grab;
+  }
+  .reader-view.panning{cursor:grabbing}
+  .reader-img{
+    position:absolute; transform-origin:0 0;
+    will-change:transform;
+    box-shadow:0 10px 60px rgba(0,0,0,.6);
+    background:var(--paper);
+  }
+  .reader-img img{display:block; width:100%; height:100%; user-select:none; -webkit-user-drag:none}
+  .reader-img img.hires{position:absolute; inset:0; opacity:0; transition:opacity .35s ease}
+  .reader-img img.hires.on{opacity:1}
+
+  .reader-bot{
+    display:flex; align-items:center; justify-content:center; gap:11px;
+    padding:12px 18px; border-top:1px solid var(--line-soft);
+  }
+  .zoomval{
+    font-size:11.5px; color:var(--ink-dim); letter-spacing:.07em;
+    min-width:46px; text-align:center; font-variant-numeric:tabular-nums;
+  }
+  .dots{display:flex; gap:7px; margin:0 6px}
+  .dots i{
+    width:6px; height:6px; border-radius:50%; background:rgba(239,234,220,.24);
+    cursor:pointer; transition:background .2s, transform .2s;
+  }
+  .dots i.on{background:var(--clay); transform:scale(1.35)}
+  @media (max-width:640px){
+    .reader-bot{gap:7px; padding:10px 12px}
+    .dots{display:none}
+  }
+
+  .spin-tip{
+    position:absolute; left:50%; bottom:12px; transform:translateX(-50%);
+    font-size:11px; color:var(--ink-dim); letter-spacing:.07em;
+    pointer-events:none; opacity:.8;
+  }
+
+  /* ---------- about sheet ---------- */
+  .sheet{
+    position:fixed; inset:0; z-index:55; display:none;
+    background:rgba(10,9,6,.75); backdrop-filter:blur(6px);
+    place-items:center; padding:22px;
+  }
+  .sheet.on{display:grid}
+  .sheet-card{
+    max-width:430px; width:100%;
+    background:var(--bg-2); border:1px solid var(--line);
+    border-radius:16px; padding:26px 26px 20px;
+    max-height:82vh; overflow:auto;
+  }
+  .sheet-card h2{
+    margin:0 0 4px; font-size:15px; letter-spacing:.03em; color:var(--paper); font-weight:600;
+  }
+  .sheet-card .sub{font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--clay); margin-bottom:16px}
+  .sheet-card p{margin:0 0 13px; font-size:13.5px; line-height:1.65; color:var(--ink-dim)}
+  .sheet-card a{color:var(--tan)}
+  .dl{display:flex; flex-direction:column; gap:9px; margin:18px 0 6px}
+  .dl a{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    text-decoration:none; color:var(--ink);
+    border:1px solid var(--line); border-radius:10px; padding:12px 15px;
+    font-size:13px; transition:border-color .2s, background .2s;
+  }
+  .dl a:hover{border-color:rgba(239,234,220,.38); background:rgba(239,234,220,.04)}
+  .dl a span{font-size:11px; color:var(--ink-dim); letter-spacing:.05em}
+  .sheet-close{width:100%; justify-content:center; margin-top:12px}
+
+  .kbd{
+    font-size:11px; color:var(--ink-dim); line-height:1.9; margin-top:4px;
+  }
+  .kbd b{
+    color:var(--ink); font-weight:500;
+    border:1px solid var(--line); border-radius:4px;
+    padding:1px 6px; font-size:10.5px; margin-right:5px;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:.01ms !important}
+  }
+</style>
+</head>
+
+<body>
+
+<div class="boot" id="boot">
+  <div class="boot-inner">
+    <div class="boot-bar"><i id="bootBar"></i></div>
+    <div class="boot-txt">Unpacking the flyer</div>
+  </div>
+</div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">Micro<b>2026</b> · Take-Home Flyer</div>
+    <div class="meta">Barbaresi · Gorla · Martinelli · <strong style="color:var(--paper);font-weight:500">Ranoco</strong> · Amigo · de Diego · Carrero · Mattarozzi · Careri</div>
+  </header>
+
+  <main class="stage" id="stage">
+    <div class="rotate-tip" id="rotateTip">Turn your phone sideways for the full spread</div>
+    <div class="fit" id="fit">
+      <div class="ground" id="ground"></div>
+      <div class="scene">
+        <div class="brochure" id="brochure">
+          <!-- panels injected -->
+        </div>
+      </div>
+    </div>
+    <div class="hint" id="hint">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 4 12l5 6M15 6l5 6-5 6"/></svg>
+      Drag to unfold · tap a panel to read
+    </div>
+  </main>
+
+  <footer class="controls">
+    <button class="primary" id="btnFold">Unfold</button>
+    <div class="scrub-wrap">
+      <span class="scrub-label" id="scrubLabel">Closed</span>
+      <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Unfold the brochure">
+    </div>
+    <button class="icon" id="btnFlip" title="Turn the sheet over (F)" aria-label="Turn over">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-7.7-4.3M3 12a9 9 0 0 1 9-9 9 9 0 0 1 7.7 4.3"/><path d="M20 3v4.5h-4.5M4 21v-4.5h4.5"/></svg>
+    </button>
+    <button class="icon" id="btnRead" title="Read at full resolution (R)" aria-label="Read">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M11 8v6M8 11h6"/></svg>
+    </button>
+    <button class="icon" id="btnAbout" title="About &amp; downloads" aria-label="About">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+    </button>
+  </footer>
+</div>
+
+<!-- ---------------- reader ---------------- -->
+<div class="reader" id="reader" role="dialog" aria-modal="true" aria-label="Full resolution reader">
+  <div class="reader-top">
+    <div class="reader-title"><b id="rPos">Panel</b><span id="rName">—</span></div>
+    <div class="spacer"></div>
+    <button class="icon" id="rClose" aria-label="Close reader">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <div class="reader-view" id="rView">
+    <div class="reader-img" id="rImg">
+      <img id="rLo" alt="">
+      <img id="rHi" class="hires" alt="">
+    </div>
+    <div class="spin-tip" id="rTip">Scroll or pinch to zoom · drag to pan · double-tap to fill</div>
+  </div>
+
+  <div class="reader-bot">
+    <button class="icon" id="rPrev" aria-label="Previous panel">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="icon" id="rOut" aria-label="Zoom out">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14"/></svg>
+    </button>
+    <div class="zoomval" id="rZoom">100%</div>
+    <button class="icon" id="rIn" aria-label="Zoom in">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <div class="dots" id="rDots"></div>
+    <button class="icon" id="rNext" aria-label="Next panel">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ---------------- about ---------------- -->
+<div class="sheet" id="sheet">
+  <div class="sheet-card">
+    <div class="sub">Micro2026</div>
+    <h2>Towards Validated SWIR Hyperspectral Methods for Small Microplastic (≤100 µm) Detection in Water Filtration Samples</h2>
+    <p style="margin-top:14px">M. Barbaresi, G. Gorla*, E. Martinelli, K. Ranoco*&#8239;**, J.&#8239;M. Amigo, A. de Diego, J.&#8239;A. Carrero, M. Mattarozzi, M. Careri</p>
+    <p style="font-size:12.5px">*&#8239;giulia.gorla@ehu.eus · *&#8239;kimverly.ranoco@ehu.eus · **&#8239;Presenting author</p>
+
+    <div class="dl">
+      <a id="dlPdf" href="assets/flyer.pdf" download>Download the flyer (PDF) <span id="dlPdfNote">print &amp; share</span></a>
+      <a id="dlCover" href="assets/panels/o3-hi.webp" download>Front cover image <span>600 dpi</span></a>
+    </div>
+
+    <p style="font-size:12px;margin-top:16px">This work was presented at Micro2026 with the support of COST Action CA23131 ICPLASTIC. COST is funded by the European Union.</p>
+
+    <div class="kbd">
+      <div><b>←</b><b>→</b> fold and unfold</div>
+      <div><b>F</b> turn the sheet over</div>
+      <div><b>R</b> read at full resolution</div>
+      <div><b>Esc</b> close</div>
+    </div>
+
+    <button class="sheet-close" id="sheetClose">Close</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   Panel model — standard A4 letter-fold imposition.
+
+   outside sheet, left→right :  o1 inside-flap | o2 back cover | o3 FRONT COVER
+   inside  sheet, left→right :  i1             | i2            | i3
+
+   Folded, the left third carries the front cover over the middle,
+   and the right third tucks the flap underneath it.
+   ============================================================ */
+
+var PW = 330, PH = 700;               // paper units (9.9 × 21 cm → 0.4714)
+
+var PANELS = [
+  { el:null, key:'L', front:'i1', back:'o3', origin:'100% 50%', x:-1.5*PW, lift:-1.2 },
+  { el:null, key:'C', front:'i2', back:'o2', origin:'50% 50%',  x:-0.5*PW, lift:0    },
+  { el:null, key:'R', front:'i3', back:'o1', origin:'0% 50%',   x: 0.5*PW, lift:-0.4 }
+];
+
+var NAMES = {
+  o3:'Front cover — title, authors & the core question',
+  i1:'Challenge 1 — One Pixel ≠ One Pure Spectrum',
+  i2:'Challenge 2 — No Single Preprocessing Recipe',
+  i3:'Challenge 3 — Pixel ≠ Particle: What is a particle?',
+  o1:'SWIR-HSI Analysis — the workflow',
+  o2:'Summary of Decisions — references & acknowledgements'
+};
+var READ_ORDER = ['o3','i1','i2','i3','o1','o2'];
+
+/* ---------- element refs ---------- */
+var $ = function(id){ return document.getElementById(id); };
+var stage=$('stage'), fit=$('fit'), brochure=$('brochure'), ground=$('ground');
+var hint=$('hint'), rotateTip=$('rotateTip');
+var scrub=$('scrub'), scrubLabel=$('scrubLabel'), btnFold=$('btnFold');
+var boot=$('boot'), bootBar=$('bootBar');
+
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- state ---------- */
+var S = {
+  p:0, pTarget:0,          // fold 0 = closed, 1 = open
+  flip:0, flipTarget:0,    // 0 = front, 1 = reversed
+  parX:0, parY:0,          // pointer parallax
+  parXT:0, parYT:0,
+  anim:null,               // {from,to,t0,dur}
+  dragging:false,
+  touched:false
+};
+
+/* ============================================================
+   build the DOM
+   ============================================================ */
+var faceEls = {};   // panelKey -> {front:{wrap,shade,crease,sheen}, back:{...}}
+
+function buildFace(pid){
+  var f = document.createElement('div');
+  f.className = 'face';
+  var img = document.createElement('img');
+  img.src = 'assets/panels/' + pid + '-lo.webp';
+  img.alt = NAMES[pid] || '';
+  img.decoding = 'async';
+  var shade = document.createElement('div'); shade.className = 'shade';
+  var cl = document.createElement('div'); cl.className = 'crease l';
+  var cr = document.createElement('div'); cr.className = 'crease r';
+  var sheen = document.createElement('div'); sheen.className = 'sheen';
+  f.appendChild(img); f.appendChild(cl); f.appendChild(cr);
+  f.appendChild(shade); f.appendChild(sheen);
+  f.dataset.pid = pid;
+  return { el:f, img:img, shade:shade, cl:cl, cr:cr, sheen:sheen };
+}
+
+PANELS.forEach(function(P){
+  var p = document.createElement('div');
+  p.className = 'panel';
+  p.style.width = PW + 'px';
+  p.style.height = PH + 'px';
+  p.style.left = P.x + 'px';
+  p.style.top = (-PH/2) + 'px';
+  p.style.transformOrigin = P.origin;
+
+  var fr = buildFace(P.front);
+  var bk = buildFace(P.back);
+  bk.el.classList.add('back');
+
+  p.appendChild(fr.el); p.appendChild(bk.el);
+  brochure.appendChild(p);
+
+  P.el = p;
+  faceEls[P.key] = { front:fr, back:bk };
+});
+
+/* ============================================================
+   boot / preload
+   ============================================================ */
+(function preload(){
+  var srcs = READ_ORDER.map(function(k){ return 'assets/panels/' + k + '-lo.webp'; });
+  var done = 0;
+  function tick(){
+    done++;
+    bootBar.style.width = Math.round(done / srcs.length * 100) + '%';
+    if (done >= srcs.length) ready();
+  }
+  srcs.forEach(function(s){
+    var i = new Image();
+    i.onload = tick; i.onerror = tick;
+    i.src = s;
+  });
+  setTimeout(function(){ if (!booted) ready(); }, 6000);   // never hang
+})();
+
+var booted = false;
+function ready(){
+  if (booted) return;
+  booted = true;
+  boot.classList.add('gone');
+  setTimeout(function(){ boot.style.display = 'none'; }, 700);
+  if (!reduceMotion) setTimeout(peek, 850);
+}
+
+/* a small "I open" gesture on the cover */
+function peek(){
+  if (S.touched) return;
+  var t0 = performance.now();
+  (function wobble(now){
+    if (S.touched) { S.p = S.pTarget = 0; return; }
+    var t = (now - t0) / 1900;
+    if (t >= 1) { S.p = S.pTarget = 0; return; }
+    var e = Math.sin(t * Math.PI * 2) * Math.sin(t * Math.PI);
+    S.p = S.pTarget = Math.max(0, e * 0.19);
+    requestAnimationFrame(wobble);
+  })(t0);
+}
+
+/* ============================================================
+   fold maths
+   ============================================================ */
+var COVER_A = 0.00, COVER_B = 0.56;   // the front cover swings open first
+var FLAP_A  = 0.44, FLAP_B  = 1.00;   // then the tucked flap follows
+
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function stageT(p,a,b){ return clamp((p-a)/(b-a),0,1); }
+function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+var RAD = Math.PI/180;
+
+function angles(p){
+  return {
+    L:  180 * (1 - easeInOutCubic(stageT(p, COVER_A, COVER_B))),
+    R: -180 * (1 - easeInOutCubic(stageT(p, FLAP_A,  FLAP_B)))
+  };
+}
+
+/* lambert-ish shading so the paper reads as a real surface */
+var LIGHT = (function(){
+  var v = [-0.28, 0.34, 1.0];
+  var m = Math.hypot(v[0],v[1],v[2]);
+  return [v[0]/m, v[1]/m, v[2]/m];
+})();
+
+function shadeFace(fa, nx, nz, cl, cr){
+  // n is the outward normal of this face in world space
+  var lam = Math.max(0, nx*LIGHT[0] + nz*LIGHT[2]);
+  var bright = 0.58 + 0.42*lam;
+  fa.shade.style.opacity = clamp((1 - bright) * 0.95, 0, 0.46).toFixed(3);
+  fa.cl.style.opacity = cl.toFixed(3);
+  fa.cr.style.opacity = cr.toFixed(3);
+  fa.sheen.style.opacity = (Math.pow(lam, 6) * 0.3).toFixed(3);
+}
+
+/* rotate a panel-space normal into world space by the scene spin */
+function worldNormal(nx, nz, spinRad){
+  return [ nx*Math.cos(spinRad) + nz*Math.sin(spinRad),
+          -nx*Math.sin(spinRad) + nz*Math.cos(spinRad) ];
+}
+
+function applyPanel(P, ang, spinRad, creaseFront, creaseBack){
+  var a = ang * RAD;
+  P.el.style.transform = 'rotateY(' + ang.toFixed(3) + 'deg) translateZ(' + P.lift + 'px)';
+
+  // front normal after rotateY(ang) is (sin a, 0, cos a); then the scene spins
+  var nf = worldNormal(Math.sin(a), Math.cos(a), spinRad);
+  var F = faceEls[P.key];
+  shadeFace(F.front,  nf[0],  nf[1], creaseFront[0], creaseFront[1]);
+  shadeFace(F.back,  -nf[0], -nf[1], creaseBack[0],  creaseBack[1]);
+}
+
+/* ============================================================
+   render
+   ============================================================ */
+var lastW = 0, lastH = 0;
+
+function render(){
+  var A = angles(S.p);
+  var spin = S.flip * 180 + S.parX;
+  var spinRad = spin * RAD;
+
+  // a panel standing up casts a shadow onto the sheet beneath it
+  var castL = Math.abs(Math.sin(A.L*RAD)) * 0.55;   // cover onto the middle
+  var castR = Math.abs(Math.sin(A.R*RAD)) * 0.55;   // flap onto the middle
+
+  // left panel: hinge is its right edge (front), mirrored to left on the back
+  applyPanel(PANELS[0], A.L, spinRad, [0, castL/0.55*0.8], [castL/0.55*0.8, 0]);
+  // middle: takes the cast shadow of both neighbours on its inner face
+  applyPanel(PANELS[1], 0,  spinRad, [castL, castR], [0, 0]);
+  // right panel: hinge is its left edge (front), mirrored to right on the back
+  applyPanel(PANELS[2], A.R, spinRad, [castR/0.55*0.8, 0], [0, castR/0.55*0.8]);
+
+  // projected footprint, so the object always fits
+  var xmin = Math.min(-PW/2, -PW/2 - PW*Math.cos(A.L*RAD));
+  var xmax = Math.max( PW/2,  PW/2 + PW*Math.cos(A.R*RAD));
+  var wide = xmax - xmin;
+
+  var cw = stage.clientWidth, ch = stage.clientHeight;
+  var pad = cw < 620 ? 22 : 42;
+  // leave room for the floating hint so it never sits on the artwork
+  var hintH = hint.classList.contains('gone') ? 0 : 54;
+  var s = Math.min((cw - pad*2) / wide, (ch - pad*2 - hintH) / PH);
+  s = clamp(s, 0.1, 1.5);
+
+  // keep the growing sheet optically centred
+  var cx = (xmin + xmax) / 2;
+
+  // tilt: an object when closed, flat for reading when open
+  var tiltP = (1 - S.p) * 7 + S.parY;
+
+  fit.style.transform = 'translateY(' + (-hintH/2).toFixed(1) + 'px) scale(' + s.toFixed(4) + ')';
+  // translate first in the parent frame, so centring survives the flip
+  brochure.style.transform =
+    'translateX(' + (-cx).toFixed(2) + 'px) rotateX(' + tiltP.toFixed(2) + 'deg) rotateY(' + spin.toFixed(2) + 'deg)';
+
+  // ground shadow
+  var gw = wide * 0.92, gh = 46 + S.p * 16;
+  ground.style.width = gw + 'px';
+  ground.style.height = gh + 'px';
+  ground.style.transform = 'translate(' + (-gw/2 - cx) + 'px,' + (PH/2 - gh/2 + 26) + 'px)';
+  ground.style.opacity = (0.5 - S.p*0.16).toFixed(2);
+
+  if (cw !== lastW || ch !== lastH){ lastW = cw; lastH = ch; updateRotateTip(); }
+}
+
+function labelFor(p){
+  if (p < 0.02) return 'Closed';
+  if (p > 0.985) return 'Open';
+  if (p < COVER_B) return 'Opening cover';
+  return 'Unfolding flap';
+}
+
+function syncUI(){
+  scrub.value = Math.round(S.p * 1000);
+  scrub.style.setProperty('--fill', (S.p*100).toFixed(1) + '%');
+  scrubLabel.textContent = labelFor(S.p);
+  btnFold.textContent = S.p > 0.5 ? 'Fold' : 'Unfold';
+}
+
+/* main loop */
+function frame(now){
+  if (S.anim){
+    var t = clamp((now - S.anim.t0) / S.anim.dur, 0, 1);
+    var e = easeInOutCubic(t);
+    S.p = S.pTarget = S.anim.from + (S.anim.to - S.anim.from) * e;
+    if (t >= 1) S.anim = null;
+  } else if (!S.dragging){
+    S.p += (S.pTarget - S.p) * 0.18;
+    if (Math.abs(S.pTarget - S.p) < 0.0005) S.p = S.pTarget;
+  }
+
+  S.flip += (S.flipTarget - S.flip) * 0.12;
+  if (Math.abs(S.flipTarget - S.flip) < 0.0005) S.flip = S.flipTarget;
+
+  S.parX += (S.parXT - S.parX) * 0.07;
+  S.parY += (S.parYT - S.parY) * 0.07;
+
+  render();
+  syncUI();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ============================================================
+   interaction — stage
+   ============================================================ */
+function markTouched(){
+  if (S.touched) return;
+  S.touched = true;
+  hint.classList.add('gone');
+}
+
+function animateTo(to, dur){
+  S.anim = { from:S.p, to:to, t0:performance.now(), dur: reduceMotion ? 1 : (dur || 1750) };
+  S.pTarget = to;
+  markTouched();
+}
+
+btnFold.addEventListener('click', function(){
+  animateTo(S.p > 0.5 ? 0 : 1, 1750);
+});
+
+$('btnFlip').addEventListener('click', function(){
+  S.flipTarget = S.flipTarget ? 0 : 1;
+  markTouched();
+});
+
+scrub.addEventListener('input', function(){
+  S.anim = null;
+  S.p = S.pTarget = scrub.value / 1000;
+  markTouched();
+});
+
+/* drag to scrub the fold */
+var drag = null;
+stage.addEventListener('pointerdown', function(e){
+  if (e.button === 1 || e.button === 2) return;
+  drag = { x:e.clientX, y:e.clientY, p:S.p, moved:0, id:e.pointerId,
+           target:e.target.closest ? e.target.closest('.face') : null };
+  S.dragging = true; S.anim = null;
+  stage.classList.add('dragging');
+  stage.setPointerCapture(e.pointerId);
+});
+
+stage.addEventListener('pointermove', function(e){
+  // parallax when idle
+  if (!drag){
+    var r = stage.getBoundingClientRect();
+    S.parXT = ((e.clientX - r.left)/r.width - 0.5) * 9;
+    S.parYT = -((e.clientY - r.top)/r.height - 0.5) * 5;
+    return;
+  }
+  var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  drag.moved = Math.max(drag.moved, Math.hypot(dx, dy));
+  var span = Math.max(240, stage.clientWidth * 0.55);
+  S.p = S.pTarget = clamp(drag.p + dx / span, 0, 1);
+  markTouched();
+});
+
+function endDrag(e){
+  if (!drag) return;
+  var wasClick = drag.moved < 6;
+  var face = drag.target;
+  drag = null; S.dragging = false;
+  stage.classList.remove('dragging');
+  try { stage.releasePointerCapture(e.pointerId); } catch(_){}
+
+  if (wasClick && face && face.dataset.pid){
+    openReader(face.dataset.pid);
+  } else if (!wasClick){
+    // settle to the nearest resting state
+    if (S.p > 0.93) S.pTarget = 1;
+    else if (S.p < 0.06) S.pTarget = 0;
+  }
+}
+stage.addEventListener('pointerup', endDrag);
+stage.addEventListener('pointercancel', endDrag);
+stage.addEventListener('pointerleave', function(){ S.parXT = 0; S.parYT = 0; });
+
+/* wheel nudges the fold */
+var wheelLock = 0;
+stage.addEventListener('wheel', function(e){
+  e.preventDefault();
+  var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  S.anim = null;
+  S.pTarget = clamp(S.pTarget + d * 0.0016, 0, 1);
+  S.p = S.pTarget;
+  markTouched();
+}, { passive:false });
+
+function updateRotateTip(){
+  var narrow = window.innerWidth < 560 && window.innerHeight > window.innerWidth;
+  rotateTip.classList.toggle('on', narrow && S.p > 0.6);
+}
+
+window.addEventListener('resize', function(){ lastW = 0; });
+window.addEventListener('orientationchange', function(){ lastW = 0; });
+
+/* ============================================================
+   reader — full resolution, zoom & pan
+   ============================================================ */
+var reader=$('reader'), rView=$('rView'), rImgBox=$('rImg'),
+    rLo=$('rLo'), rHi=$('rHi'), rZoomTxt=$('rZoom'),
+    rName=$('rName'), rPos=$('rPos'), rDots=$('rDots'), rTip=$('rTip');
+
+var R = { idx:0, z:1, fitZ:1, x:0, y:0, w:0, h:0, on:false };
+var ASPECT = PH / PW;
+
+READ_ORDER.forEach(function(k,i){
+  var d = document.createElement('i');
+  d.addEventListener('click', function(){ showPanel(i); });
+  rDots.appendChild(d);
+});
+
+function openReader(pid){
+  reader.classList.add('on');      // must be laid out before we can measure it
+  R.on = true;
+  var i = READ_ORDER.indexOf(pid);
+  showPanel(i < 0 ? 0 : i);
+}
+
+function closeReader(){
+  reader.classList.remove('on');
+  R.on = false;
+  rHi.classList.remove('on');
+  rHi.removeAttribute('src');          // release the big decode
+}
+
+function showPanel(i){
+  R.idx = (i + READ_ORDER.length) % READ_ORDER.length;
+  var pid = READ_ORDER[R.idx];
+
+  rLo.src = 'assets/panels/' + pid + '-lo.webp';
+  rHi.classList.remove('on');
+  rHi.removeAttribute('src');
+  var hi = new Image();
+  hi.onload = function(){
+    if (READ_ORDER[R.idx] !== pid) return;
+    rHi.src = hi.src;
+    rHi.classList.add('on');
+  };
+  hi.src = 'assets/panels/' + pid + '-hi.webp';
+
+  rName.textContent = NAMES[pid];
+  rPos.textContent = 'Panel ' + (R.idx+1) + ' of ' + READ_ORDER.length;
+  Array.prototype.forEach.call(rDots.children, function(d,k){ d.classList.toggle('on', k === R.idx); });
+
+  fitPanel();
+  if (rTip) { rTip.style.opacity = ''; setTimeout(function(){ rTip.style.opacity = '0'; }, 3200); }
+}
+
+function fitPanel(){
+  var vw = rView.clientWidth, vh = rView.clientHeight;
+  var pad = vw < 620 ? 10 : 28;
+  var s = Math.min((vw - pad*2) / PW, (vh - pad*2) / PH);
+  R.fitZ = s; R.z = s;
+  R.w = PW; R.h = PH;
+  R.x = (vw - PW*s)/2; R.y = (vh - PH*s)/2;
+  applyReader();
+}
+
+function applyReader(){
+  rImgBox.style.width = R.w + 'px';
+  rImgBox.style.height = R.h + 'px';
+  rImgBox.style.transform = 'translate(' + R.x + 'px,' + R.y + 'px) scale(' + R.z + ')';
+  rZoomTxt.textContent = Math.round(R.z / R.fitZ * 100) + '%';
+}
+
+function zoomAt(cx, cy, factor){
+  // don't zoom past the native pixels of the 600 dpi panel
+  var nz = clamp(R.z * factor, R.fitZ * 0.9, Math.min(R.fitZ * 10, 7.0));
+  var k = nz / R.z;
+  R.x = cx - (cx - R.x) * k;
+  R.y = cy - (cy - R.y) * k;
+  R.z = nz;
+  constrain();
+  applyReader();
+}
+
+function constrain(){
+  var vw = rView.clientWidth, vh = rView.clientHeight;
+  var w = R.w * R.z, h = R.h * R.z;
+  if (w <= vw) R.x = (vw - w)/2; else R.x = clamp(R.x, vw - w, 0);
+  if (h <= vh) R.y = (vh - h)/2; else R.y = clamp(R.y, vh - h, 0);
+}
+
+rView.addEventListener('wheel', function(e){
+  e.preventDefault();
+  var r = rView.getBoundingClientRect();
+  zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * 0.0016));
+}, { passive:false });
+
+var pts = {}, pinch = null, pan = null;
+
+rView.addEventListener('pointerdown', function(e){
+  rView.setPointerCapture(e.pointerId);
+  pts[e.pointerId] = { x:e.clientX, y:e.clientY };
+  var ids = Object.keys(pts);
+  if (ids.length === 1){
+    pan = { x:e.clientX, y:e.clientY, ox:R.x, oy:R.y, moved:0 };
+    rView.classList.add('panning');
+  } else if (ids.length === 2){
+    pan = null;
+    var a = pts[ids[0]], b = pts[ids[1]];
+    pinch = { d: Math.hypot(a.x-b.x, a.y-b.y), z:R.z };
+  }
+});
+
+rView.addEventListener('pointermove', function(e){
+  if (!pts[e.pointerId]) return;
+  pts[e.pointerId] = { x:e.clientX, y:e.clientY };
+  var ids = Object.keys(pts);
+  var r = rView.getBoundingClientRect();
+
+  if (pinch && ids.length >= 2){
+    var a = pts[ids[0]], b = pts[ids[1]];
+    var d = Math.hypot(a.x-b.x, a.y-b.y);
+    var mx = (a.x+b.x)/2 - r.left, my = (a.y+b.y)/2 - r.top;
+    var target = pinch.z * (d / pinch.d);
+    zoomAt(mx, my, target / R.z);
+  } else if (pan){
+    var dx = e.clientX - pan.x, dy = e.clientY - pan.y;
+    pan.moved = Math.max(pan.moved, Math.hypot(dx,dy));
+    R.x = pan.ox + dx; R.y = pan.oy + dy;
+    constrain(); applyReader();
+  }
+});
+
+function endRPointer(e){
+  delete pts[e.pointerId];
+  if (Object.keys(pts).length < 2) pinch = null;
+  if (Object.keys(pts).length === 0){
+    rView.classList.remove('panning');
+    pan = null;
+  }
+  try { rView.releasePointerCapture(e.pointerId); } catch(_){}
+}
+rView.addEventListener('pointerup', endRPointer);
+rView.addEventListener('pointercancel', endRPointer);
+
+rView.addEventListener('dblclick', function(e){
+  var r = rView.getBoundingClientRect();
+  if (R.z > R.fitZ * 1.2) fitPanel();
+  else zoomAt(e.clientX - r.left, e.clientY - r.top, 2.6);
+});
+
+$('rIn').addEventListener('click', function(){ zoomAt(rView.clientWidth/2, rView.clientHeight/2, 1.5); });
+$('rOut').addEventListener('click', function(){ zoomAt(rView.clientWidth/2, rView.clientHeight/2, 1/1.5); });
+$('rPrev').addEventListener('click', function(){ showPanel(R.idx - 1); });
+$('rNext').addEventListener('click', function(){ showPanel(R.idx + 1); });
+$('rClose').addEventListener('click', closeReader);
+$('btnRead').addEventListener('click', function(){
+  openReader(S.p > 0.5 ? 'i1' : 'o3');
+});
+window.addEventListener('resize', function(){ if (R.on) fitPanel(); });
+
+/* ============================================================
+   about sheet
+   ============================================================ */
+var sheet = $('sheet');
+$('btnAbout').addEventListener('click', function(){ sheet.classList.add('on'); });
+$('sheetClose').addEventListener('click', function(){ sheet.classList.remove('on'); });
+sheet.addEventListener('click', function(e){ if (e.target === sheet) sheet.classList.remove('on'); });
+
+/* hide the PDF link if it was never published */
+fetch('assets/flyer.pdf', { method:'HEAD' }).then(function(r){
+  if (!r.ok) throw 0;
+  var len = r.headers.get('content-length');
+  if (len) $('dlPdfNote').textContent = (len/1048576).toFixed(1) + ' MB · print & share';
+}).catch(function(){
+  var a = $('dlPdf'); if (a) a.style.display = 'none';
+});
+
+/* ============================================================
+   keyboard
+   ============================================================ */
+window.addEventListener('keydown', function(e){
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+  if (e.key === 'Escape'){
+    if (R.on) closeReader();
+    else if (sheet.classList.contains('on')) sheet.classList.remove('on');
+    return;
+  }
+  if (R.on){
+    if (e.key === 'ArrowRight'){ showPanel(R.idx+1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft'){ showPanel(R.idx-1); e.preventDefault(); }
+    if (e.key === '+' || e.key === '='){ zoomAt(rView.clientWidth/2, rView.clientHeight/2, 1.5); }
+    if (e.key === '-'){ zoomAt(rView.clientWidth/2, rView.clientHeight/2, 1/1.5); }
+    return;
+  }
+  if (e.key === 'ArrowRight'){ animateTo(clamp(S.pTarget + 0.5, 0, 1), 950); e.preventDefault(); }
+  if (e.key === 'ArrowLeft'){ animateTo(clamp(S.pTarget - 0.5, 0, 1), 950); e.preventDefault(); }
+  if (e.key === 'f' || e.key === 'F'){ S.flipTarget = S.flipTarget ? 0 : 1; markTouched(); }
+  if (e.key === 'r' || e.key === 'R'){ openReader(S.p > 0.5 ? 'i1' : 'o3'); }
+  if (e.key === ' '){ animateTo(S.p > 0.5 ? 0 : 1, 1750); e.preventDefault(); }
+});
+
+})();
+</script>
+</body>
+</html>
