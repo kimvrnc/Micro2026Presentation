@@ -1,0 +1,168 @@
+{
+ "count": 18,
+ "slides": [
+  {
+   "n": 1,
+   "title": "Title slide",
+   "w": 3840,
+   "h": 2160,
+   "th": 9.0,
+   "view": 112.3,
+   "hi": 231.1
+  },
+  {
+   "n": 2,
+   "title": "What was done: SWIR Hyperspectral Imaging",
+   "w": 3840,
+   "h": 2160,
+   "th": 7.0,
+   "view": 88.0,
+   "hi": 173.0
+  },
+  {
+   "n": 3,
+   "title": "What was done: Pixel-by-pixel Comparison with Ref",
+   "w": 3840,
+   "h": 2160,
+   "th": 8.7,
+   "view": 136.1,
+   "hi": 290.0
+  },
+  {
+   "n": 4,
+   "title": "Challenge 1: ???",
+   "w": 3840,
+   "h": 2160,
+   "th": 4.2,
+   "view": 53.0,
+   "hi": 108.2
+  },
+  {
+   "n": 5,
+   "title": "Challenge 1: A pixel is rarely a pure spectrum of a particle",
+   "w": 3840,
+   "h": 2160,
+   "th": 7.8,
+   "view": 89.9,
+   "hi": 178.9
+  },
+  {
+   "n": 6,
+   "title": "Perspective: Addressing Pixel-Mixing and Scattering",
+   "w": 3840,
+   "h": 2160,
+   "th": 8.3,
+   "view": 111.8,
+   "hi": 239.6
+  },
+  {
+   "n": 7,
+   "title": "Challenge 2: ??",
+   "w": 3840,
+   "h": 2160,
+   "th": 5.5,
+   "view": 98.7,
+   "hi": 250.7
+  },
+  {
+   "n": 8,
+   "title": "Challenge 2: No Single Preprocessing Recipe",
+   "w": 3840,
+   "h": 2160,
+   "th": 6.4,
+   "view": 107.7,
+   "hi": 265.0
+  },
+  {
+   "n": 9,
+   "title": "Perspective: Addressing Preprocessing Challenges",
+   "w": 3840,
+   "h": 2160,
+   "th": 7.2,
+   "view": 129.5,
+   "hi": 333.3
+  },
+  {
+   "n": 10,
+   "title": "Challenge 3a: ??",
+   "w": 3840,
+   "h": 2160,
+   "th": 3.6,
+   "view": 134.1,
+   "hi": 437.8
+  },
+  {
+   "n": 11,
+   "title": "Challenge 3a: Image Segmentation - Setting the Cutoff",
+   "w": 3840,
+   "h": 2160,
+   "th": 5.3,
+   "view": 148.4,
+   "hi": 463.5
+  },
+  {
+   "n": 12,
+   "title": "Challenge 3b: ??",
+   "w": 3840,
+   "h": 2160,
+   "th": 4.4,
+   "view": 47.0,
+   "hi": 87.2
+  },
+  {
+   "n": 13,
+   "title": "Challenge 3b: Particle Counting",
+   "w": 3840,
+   "h": 2160,
+   "th": 5.4,
+   "view": 54.2,
+   "hi": 100.4
+  },
+  {
+   "n": 14,
+   "title": "Perspective: On Setting a Cut-off and Counting a Particle",
+   "w": 3840,
+   "h": 2160,
+   "th": 11.9,
+   "view": 150.5,
+   "hi": 353.7
+  },
+  {
+   "n": 15,
+   "title": "Summary of decisions and uncertainties",
+   "w": 3840,
+   "h": 2160,
+   "th": 5.9,
+   "view": 61.9,
+   "hi": 121.9
+  },
+  {
+   "n": 16,
+   "title": "Perspective: On Final Reported Detections",
+   "w": 3840,
+   "h": 2160,
+   "th": 6.8,
+   "view": 98.8,
+   "hi": 209.2
+  },
+  {
+   "n": 17,
+   "title": "PE red on Cellulose Filter Cosine Map against reference",
+   "w": 3840,
+   "h": 2160,
+   "th": 8.2,
+   "view": 179.4,
+   "hi": 442.4
+  },
+  {
+   "n": 18,
+   "title": "Presentation Acknowledgement",
+   "w": 3840,
+   "h": 2160,
+   "th": 9.2,
+   "view": 87.2,
+   "hi": 168.0
+  }
+ ],
+ "pdf_mb": 2.8
+}

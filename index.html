@@ -91,8 +91,10 @@
   .tab.on{background:rgba(239,234,220,.13); color:var(--paper)}
 
   /* ---------- view container ---------- */
-  .stagewrap{position:relative; overflow:hidden}
-  .footwrap{position:relative}
+  /* grid items default to min-width:auto, so the thumbnail strip would
+     stretch the whole grid past the viewport. Pin both tracks to zero. */
+  .stagewrap{position:relative; overflow:hidden; min-width:0; min-height:0}
+  .footwrap{position:relative; overflow:hidden; min-width:0}
   .deck{display:none}
   .stage.off{display:none}
   .deck.on{display:flex; flex-direction:column}

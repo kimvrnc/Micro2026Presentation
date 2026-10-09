@@ -9,14 +9,26 @@ M. Barbaresi, G. Gorla\*, E. Martinelli, K. Ranoco\*\*\*, J. M. Amigo, A. de Die
 
 ![The flyer unfolding](assets/unfold.gif)
 
-The page shows the flyer as a real sheet of paper. The front cover swings open,
-then the tucked flap unfolds, exactly as the printed trifold does. Any panel can
-be opened at full resolution for reading.
+One link, two things: the **flyer** and the **talk**.
+
+**Flyer.** The sheet behaves like paper. The front cover swings open, then the
+tucked flap unfolds, exactly as the printed trifold does.
 
 * Drag sideways, scroll, or use the slider to fold and unfold
 * Tap or click a panel to read it at 600 dpi, with zoom and pan
 * The turn-over button shows the other side of the sheet at any fold angle
 * Keyboard: `←` `→` fold · `F` turn over · `R` read · `Esc` close
+
+**Talk.** All 18 slides, arrow keys or swipe, a thumbnail strip to jump around,
+and click-to-zoom into any figure at the slide's native 3840 px.
+
+* Keyboard: `←` `→` `Space` page · `Home` `End` · `R` zoom · `1` `2` switch view
+* `#talk` in the URL opens straight on the slides
+
+**The talk PDF carries no speaker notes.** A PowerPoint PDF export writes the
+slides only; notes live in a separate part of the file. This is verified rather
+than assumed — the build checks every phrase of all 12 notes slides against the
+text of the produced PDF.
 
 ## Panel map
 
@@ -48,10 +60,18 @@ Each panel ships in two tiers: a light one that drives the fold animation, and a
 
 ## Rebuilding the assets
 
-1. Run `export_web.ps1` (in the flyer's working folder) on the Windows machine
-   that has the `.pptx`. It disables picture compression and exports
-   `slide1.png` / `slide2.png` at 7016 × 4961 plus a vector PDF.
-2. Run `build_assets.py` pointing at that `web_export` folder. It slices each
-   sheet into equal thirds and writes the WebP tiers into `assets/panels/`.
+1. Run `export_web.ps1` on the Windows machine that has the decks. It disables
+   picture compression, then exports the flyer at 7016 × 4961, the talk's
+   18 slides at 3840 × 2160, and a PDF of each.
+2. `build_assets.py` slices each flyer sheet into equal thirds and writes the
+   WebP tiers into `assets/panels/`.
+3. `build_talk.py` writes the slide tiers into `assets/talk/` — `th` 320 px for
+   the strip, `view` 1920 px for reading, `hi` 3840 px fetched only on zoom.
 
-Both scripts are kept in `tools/`.
+All three are kept in `tools/`. Note that PowerShell's COM binder rejects
+`ExportAsFixedFormat`'s optional arguments on some Office builds, so the script
+uses `SaveCopyAs(ppSaveAsPDF)` and falls back; every step is wrapped so one
+failure cannot abort the run.
+
+Initial page load is about 1 MB. The 600 dpi flyer panels and the 3840 px
+slides are fetched only when someone zooms.
