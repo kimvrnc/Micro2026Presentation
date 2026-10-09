@@ -9,7 +9,7 @@ M. Barbaresi, G. Gorla\*, E. Martinelli, K. Ranoco\*\*\*, J. M. Amigo, A. de Die
 
 ![The flyer unfolding](assets/unfold.gif)
 
-One link, two things: the **flyer** and the **talk**.
+One link, two things: the **flyer** and the **walking talk**.
 
 **Flyer.** The sheet behaves like paper. The front cover swings open, then the
 tucked flap unfolds, exactly as the printed trifold does.
@@ -19,13 +19,16 @@ tucked flap unfolds, exactly as the printed trifold does.
 * The turn-over button shows the other side of the sheet at any fold angle
 * Keyboard: `←` `→` fold · `F` turn over · `R` read · `Esc` close
 
-**Talk.** All 18 slides, arrow keys or swipe, a thumbnail strip to jump around,
+**Walking talk.** All 18 slides, arrow keys or swipe, a thumbnail strip to jump around,
 and click-to-zoom into any figure at the slide's native 3840 px.
 
 * Keyboard: `←` `→` `Space` page · `Home` `End` · `R` zoom · `1` `2` switch view
 * `#talk` in the URL opens straight on the slides
 
-**The talk PDF carries no speaker notes.** A PowerPoint PDF export writes the
+The five authors with LinkedIn profiles are linked from the header and from
+the info panel.
+
+**The walking talk PDF carries no speaker notes.** A PowerPoint PDF export writes the
 slides only; notes live in a separate part of the file. This is verified rather
 than assumed — the build checks every phrase of all 12 notes slides against the
 text of the produced PDF.
@@ -61,7 +64,7 @@ Each panel ships in two tiers: a light one that drives the fold animation, and a
 ## Rebuilding the assets
 
 1. Run `export_web.ps1` on the Windows machine that has the decks. It disables
-   picture compression, then exports the flyer at 7016 × 4961, the talk's
+   picture compression, then exports the flyer at 7016 × 4961, the walking talk's
    18 slides at 3840 × 2160, and a PDF of each.
 2. `build_assets.py` slices each flyer sheet into equal thirds and writes the
    WebP tiers into `assets/panels/`.

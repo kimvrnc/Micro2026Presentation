@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Micro2026 · Flyer &amp; Talk</title>
-<meta name="description" content="Towards Validated SWIR Hyperspectral Methods for Small Microplastic (≤100 µm) Detection in Water Filtration Samples — the unfoldable take-home flyer and the full 18-slide talk from Micro2026.">
+<title>Micro2026 · Flyer &amp; Walking Talk</title>
+<meta name="description" content="Towards Validated SWIR Hyperspectral Methods for Small Microplastic (≤100 µm) Detection in Water Filtration Samples — the unfoldable take-home flyer and the full 18-slide walking talk from Micro2026.">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Micro2026 · Flyer &amp; Talk">
-<meta property="og:description" content="Towards Validated SWIR Hyperspectral Methods for Small Microplastic (≤100 µm) Detection in Water Filtration Samples. Unfold the trifold, or read the talk.">
+<meta property="og:title" content="Micro2026 · Flyer &amp; Walking Talk">
+<meta property="og:description" content="Towards Validated SWIR Hyperspectral Methods for Small Microplastic (≤100 µm) Detection in Water Filtration Samples. Unfold the trifold, or read the walking talk.">
 <meta property="og:image" content="https://kimvrnc.github.io/Micro2026Presentation/assets/og.png">
 <meta property="og:url" content="https://kimvrnc.github.io/Micro2026Presentation/">
 <meta name="twitter:card" content="summary_large_image">
@@ -75,10 +75,27 @@
     font-size:12px; color:var(--ink-dim); letter-spacing:.04em;
     margin-left:auto; text-align:right;
   }
+  .meta a{
+    color:inherit; text-decoration:none;
+    border-bottom:1px solid rgba(239,234,220,.25);
+    transition:color .18s, border-color .18s;
+  }
+  .meta a:hover{color:var(--paper); border-bottom-color:var(--clay)}
+  .meta a.me{color:var(--paper); font-weight:500}
+  .meta a:focus-visible,
+  .authors a:focus-visible{outline:2px solid var(--clay); outline-offset:2px; border-radius:2px}
+
+  .authors a{
+    color:var(--tan); text-decoration:none;
+    border-bottom:1px solid rgba(209,172,150,.4);
+    transition:border-color .18s;
+  }
+  .authors a:hover{border-bottom-color:var(--tan)}
   @media (max-width:640px){
-    .topbar{padding:11px 15px 8px}
+    .topbar{padding:11px 13px 8px; gap:10px}
     .brand{font-size:10.5px; letter-spacing:.15em}
     .meta{display:none}
+    .tab{padding:6px 11px; font-size:10.5px; letter-spacing:.07em}
   }
 
   .tabs{display:flex; gap:3px; background:rgba(239,234,220,.06); border-radius:999px; padding:3px}
@@ -478,9 +495,16 @@
     <div class="brand">Micro<b>2026</b></div>
     <nav class="tabs" role="tablist" aria-label="What to view">
       <button class="tab on" id="tabFlyer" role="tab" aria-selected="true">Flyer</button>
-      <button class="tab" id="tabTalk" role="tab" aria-selected="false">Talk</button>
+      <button class="tab" id="tabTalk" role="tab" aria-selected="false">Walking&nbsp;Talk</button>
     </nav>
-    <div class="meta">Barbaresi · Gorla · Martinelli · <strong style="color:var(--paper);font-weight:500">Ranoco</strong> · Amigo · de Diego · Carrero · Mattarozzi · Careri</div>
+    <div class="meta">
+      <a href="https://www.linkedin.com/in/marta-barbaresi-26b236254/" target="_blank" rel="noopener noreferrer" title="Marta Barbaresi on LinkedIn">Barbaresi</a> ·
+      <a href="https://www.linkedin.com/in/giuliagorla95/" target="_blank" rel="noopener noreferrer" title="Giulia Gorla on LinkedIn">Gorla</a> ·
+      <a href="https://www.linkedin.com/in/elisabetta-martinelli0596/" target="_blank" rel="noopener noreferrer" title="Elisabetta Martinelli on LinkedIn">Martinelli</a> ·
+      <a class="me" href="https://www.linkedin.com/in/kimverlyranoco/" target="_blank" rel="noopener noreferrer" title="Kimverly Ranoco on LinkedIn">Ranoco</a> ·
+      <a href="https://www.linkedin.com/in/jos%C3%A9-manuel-amigo-rubio-41b9a73a/" target="_blank" rel="noopener noreferrer" title="José Manuel Amigo on LinkedIn">Amigo</a> ·
+      de Diego · Carrero · Mattarozzi · Careri
+    </div>
   </header>
 
   <div class="stagewrap">
@@ -596,11 +620,12 @@
   <div class="sheet-card">
     <div class="sub">Micro2026</div>
     <h2>Towards Validated SWIR Hyperspectral Methods for Small Microplastic (≤100 µm) Detection in Water Filtration Samples: Challenges and Perspectives</h2>
-    <p style="margin-top:14px">M. Barbaresi, G. Gorla*, E. Martinelli, K. Ranoco*,**, J.&#8239;M. Amigo, A. de Diego, J.&#8239;A. Carrero, M. Mattarozzi, M. Careri</p>
+    <p class="authors" style="margin-top:14px"><a href="https://www.linkedin.com/in/marta-barbaresi-26b236254/" target="_blank" rel="noopener noreferrer">M. Barbaresi</a>, <a href="https://www.linkedin.com/in/giuliagorla95/" target="_blank" rel="noopener noreferrer">G. Gorla</a>*, <a href="https://www.linkedin.com/in/elisabetta-martinelli0596/" target="_blank" rel="noopener noreferrer">E. Martinelli</a>, <a href="https://www.linkedin.com/in/kimverlyranoco/" target="_blank" rel="noopener noreferrer">K. Ranoco</a>*,**, <a href="https://www.linkedin.com/in/jos%C3%A9-manuel-amigo-rubio-41b9a73a/" target="_blank" rel="noopener noreferrer">J.&#8239;M. Amigo</a>, A. de Diego, J.&#8239;A. Carrero, M. Mattarozzi, M. Careri</p>
+    <p style="font-size:11.5px;color:var(--ink-dim);opacity:.8">Underlined names link to LinkedIn.</p>
     <p style="font-size:12.5px">*&#8239;giulia.gorla@ehu.eus · *&#8239;kimverly.ranoco@ehu.eus · **&#8239;Presenting author</p>
 
     <div class="dl">
-      <a id="dlTalk" href="assets/talk/Micro2026_talk.pdf" download>The talk — 18 slides (PDF) <span id="dlTalkNote">slides only</span></a>
+      <a id="dlTalk" href="assets/talk/Micro2026_talk.pdf" download>The walking talk — 18 slides (PDF) <span id="dlTalkNote">slides only</span></a>
       <a id="dlPdf" href="assets/flyer.pdf" download>The trifold flyer (PDF) <span id="dlPdfNote">print &amp; share</span></a>
       <a id="dlCover" href="assets/panels/o3-hi.webp" download>Front cover image <span>600 dpi</span></a>
     </div>
@@ -617,7 +642,8 @@
     <p style="font-size:12px;margin-top:16px">This work was presented at Micro2026 with the support of COST Action CA23131 ICPLASTIC. COST is funded by the European Union.</p>
 
     <div class="kbd">
-      <div><b>←</b><b>→</b> fold and unfold</div>
+      <div><b>1</b><b>2</b> flyer / walking talk</div>
+      <div><b>←</b><b>→</b> fold the sheet · page the slides</div>
       <div><b>F</b> turn the sheet over</div>
       <div><b>R</b> read at full resolution</div>
       <div><b>Esc</b> close</div>
