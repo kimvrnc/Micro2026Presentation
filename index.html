@@ -676,7 +676,16 @@ function worldNormal(nx, nz, spinRad){
 
 function applyPanel(P, ang, spinRad, creaseFront, creaseBack){
   var a = ang * RAD;
-  P.el.style.transform = 'rotateY(' + ang.toFixed(3) + 'deg) translateZ(' + P.lift + 'px)';
+
+  // Paper thickness: it only has to separate the panels while they lie folded
+  // on top of the middle, so fade it out as the panel opens. At rest the
+  // transform collapses to 2D, which keeps the flat spread out of a 3D
+  // compositing layer — sharper text, and some embedded browsers decline to
+  // paint a 3D layer at all.
+  var lift = P.lift * (1 - Math.cos(a)) / 2;
+  var t = 'rotateY(' + ang.toFixed(3) + 'deg)';
+  if (Math.abs(lift) > 0.001) t += ' translateZ(' + lift.toFixed(3) + 'px)';
+  P.el.style.transform = t;
 
   // front normal after rotateY(ang) is (sin a, 0, cos a); then the scene spins
   var nf = worldNormal(Math.sin(a), Math.cos(a), spinRad);
