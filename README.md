@@ -17,6 +17,11 @@ tucked flap unfolds, exactly as the printed trifold does.
 * On a touch screen, **tap anywhere** to walk the sheet through what your
   hands would do: open the cover, unfold the flap, turn it over, close it.
   The button always names the next step. With a mouse, drag or use the slider.
+* Each step also **frames what has not been read yet**. Fitting three panels
+  on a phone makes each unreadable, and panel 1 was already read while the
+  cover was open — so the scale holds at two panels wide and the view slides
+  onto panels 2 and 3, then onto the analysis and the summary once the sheet
+  is turned over. Pinching or dragging hands the framing back to the reader.
 * **Pinch to zoom the open sheet** in place and drag to pan — the 600 dpi
   panels stay sharp well past 3x, so the spread can be read without
   leaving it. A trackpad pinch (ctrl+wheel) does the same.

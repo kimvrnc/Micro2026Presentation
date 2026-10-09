@@ -801,13 +801,20 @@ var S = {
   parX:0, parY:0,          // pointer parallax
   parXT:0, parYT:0,
   anim:null,               // {from,to,t0,dur}
+  flipAnim:null,           // the turn-over, timed so it can match the fold
   dragging:false,
   touched:false,
   hintAmt:1                // space reserved for the hint, eased away on first touch
 };
 
-/* pinch zoom applied on top of the fit scale: 1 = fitted */
-var Z = { s:1, x:0, y:0 };
+/* Zoom/pan on top of the fit scale: 1 = fitted. The t* values are where it
+   is heading, so a step can glide there while a pinch stays glued to the
+   fingers (a pinch sets both at once). */
+var Z = { s:1, x:0, y:0, ts:1, tx:0, ty:0 };
+
+/* which part of the sheet the reading view should sit on, in panel units
+   measured from the middle of the unflipped sheet */
+var FOCUS = { on:false, centreU:0 };
 
 /* ============================================================
    build the DOM
@@ -993,12 +1000,28 @@ function render(){
   // tilt: an object when closed, flat for reading when open
   var tiltP = (1 - S.p) * 7 + S.parY;
 
+  /* Reading focus. Once the sheet lies flat there are three panels and
+     fitting them all makes each one unreadably small on a phone — and the
+     first one has already been read on the way here. So hold the scale at
+     two panels wide and sit on the pair that is still new. The centre
+     mirrors through the flip, so the same two panels stay under the eye
+     as the sheet turns over. */
+  if (FOCUS.on){
+    var sWant = Math.min((cw - pad*2) / (2*PW), (ch - pad*2 - hintH) / PH);
+    Z.ts = Math.max(1, sWant / s);
+    var centreScreen = FOCUS.centreU * (1 - 2*S.flip);
+    Z.tx = -centreScreen * s * Z.ts;
+    Z.ty = 0;
+  }
+
   // keep the zoomed sheet from being dragged off the stage
   var fitS = s * Z.s;
   var overX = Math.max(0, (wide * fitS - cw) / 2 + 24);
   var overY = Math.max(0, (PH   * fitS - ch) / 2 + 24);
   Z.x = clamp(Z.x, -overX, overX);
   Z.y = clamp(Z.y, -overY, overY);
+  Z.tx = clamp(Z.tx, -overX, overX);
+  Z.ty = clamp(Z.ty, -overY, overY);
 
   fit.style.transform =
     'translate(' + Z.x.toFixed(1) + 'px,' + (Z.y - hintH/2).toFixed(1) + 'px) scale(' + fitS.toFixed(4) + ')';
@@ -1044,15 +1067,30 @@ function frame(now){
     if (Math.abs(S.pTarget - S.p) < 0.0005) S.p = S.pTarget;
   }
 
-  S.flip += (S.flipTarget - S.flip) * 0.12;
-  if (Math.abs(S.flipTarget - S.flip) < 0.0005) S.flip = S.flipTarget;
-
   S.parX += (S.parXT - S.parX) * 0.07;
   S.parY += (S.parYT - S.parY) * 0.07;
 
   var hintGoal = S.touched ? 0 : 1;
   S.hintAmt += (hintGoal - S.hintAmt) * 0.08;
   if (Math.abs(hintGoal - S.hintAmt) < 0.002) S.hintAmt = hintGoal;
+
+  // glide toward the reading focus
+  Z.s += (Z.ts - Z.s) * 0.13;
+  Z.x += (Z.tx - Z.x) * 0.13;
+  Z.y += (Z.ty - Z.y) * 0.13;
+  if (Math.abs(Z.ts - Z.s) < 0.002) Z.s = Z.ts;
+  if (Math.abs(Z.tx - Z.x) < 0.3)   Z.x = Z.tx;
+  if (Math.abs(Z.ty - Z.y) < 0.3)   Z.y = Z.ty;
+
+  // the turn-over is timed so it can close in step with the fold
+  if (S.flipAnim){
+    var ft = clamp((now - S.flipAnim.t0) / S.flipAnim.dur, 0, 1);
+    S.flip = S.flipTarget = S.flipAnim.from + (S.flipAnim.to - S.flipAnim.from) * easeInOutCubic(ft);
+    if (ft >= 1){ S.flipAnim = null; S.flipTarget = Math.round(S.flip); }
+  } else {
+    S.flip += (S.flipTarget - S.flip) * 0.12;
+    if (Math.abs(S.flipTarget - S.flip) < 0.0005) S.flip = S.flipTarget;
+  }
 
   render();
   syncUI();
@@ -1088,14 +1126,41 @@ function flyerStage(){
   return 0;
 }
 
+function flipTo(v, dur){
+  S.flipAnim = { from:S.flip, to:v, t0:performance.now(), dur: reduceMotion ? 1 : dur };
+  S.flipTarget = v;
+  markTouched();
+}
+
+/* Each step also says where to look next. Panel 1 is read while the cover
+   is open, so the flat sheet sits on panels 2 and 3; turning over, the same
+   two panels become the analysis and the summary, and the cover has already
+   been seen twice by then. */
 function flyerStep(){
-  resetZoom();                                        // a step always starts fitted
   switch (flyerStage()){
-    case 0: animateTo(COVER_B, 1050); break;          // cover swings open
-    case 1: animateTo(1, 1050); break;                // tucked flap unfolds
-    case 2: S.flipTarget = 1; markTouched(); break;   // turn the sheet over
-    default: S.flipTarget = 0; animateTo(0, 1500);    // and fold it back up
+    case 0:                                           // cover swings open
+      setFocus(false);
+      animateTo(COVER_B, 1050);
+      break;
+    case 1:                                           // tucked flap unfolds
+      setFocus(isTouch, PW/2);                        // hold two panels, slide right
+      animateTo(1, 1150);
+      break;
+    case 2:                                           // turn the sheet over
+      setFocus(isTouch, PW/2);                        // centre mirrors with the flip
+      flipTo(1, 900);
+      break;
+    default:                                          // close: turn and fold together
+      setFocus(false);
+      flipTo(0, 1000);
+      animateTo(0, 1000);
   }
+}
+
+function setFocus(on, centreU){
+  FOCUS.on = !!on;
+  FOCUS.centreU = centreU || 0;
+  if (!FOCUS.on){ Z.ts = 1; Z.tx = 0; Z.ty = 0; }     // glide back to fitted
 }
 
 btnFold.addEventListener('click', flyerStep);
@@ -1103,8 +1168,7 @@ btnFold.addEventListener('click', flyerStep);
 if (isTouch) $('hintText').textContent = 'Tap to open · pinch to zoom · swipe to turn';
 
 $('btnFlip').addEventListener('click', function(){
-  S.flipTarget = S.flipTarget ? 0 : 1;
-  markTouched();
+  flipTo(S.flipTarget ? 0 : 1, 700);
 });
 
 scrub.addEventListener('input', function(){
@@ -1124,14 +1188,19 @@ scrub.addEventListener('input', function(){
    tap          → the next step of the sequence
    ============================================================ */
 function zoomFlyer(vx, vy, factor){
+  FOCUS.on = false;               // she is steering now; stop auto-framing
   var ns = clamp(Z.s * factor, 1, 6);
   var k = ns / Z.s;
   Z.x = vx - (vx - Z.x) * k;      // keep the pinched point under the fingers
   Z.y = vy - (vy - Z.y) * k;
   Z.s = ns;
+  Z.ts = Z.s; Z.tx = Z.x; Z.ty = Z.y;   // no glide: follow the fingers exactly
   markTouched();
 }
-function resetZoom(){ Z.s = 1; Z.x = 0; Z.y = 0; }
+function resetZoom(){
+  FOCUS.on = false;
+  Z.s = Z.ts = 1; Z.x = Z.tx = 0; Z.y = Z.ty = 0;
+}
 
 /* stage coordinates measured from its centre, which is where .fit sits */
 function stagePoint(cx, cy){
@@ -1190,10 +1259,12 @@ stage.addEventListener('pointermove', function(e){
   drag.moved = Math.max(drag.moved, Math.hypot(dx, dy));
 
   if (drag.mode === 'pan'){
-    Z.x = drag.zx + dx; Z.y = drag.zy + dy;
+    FOCUS.on = false;
+    Z.x = Z.tx = drag.zx + dx; Z.y = Z.ty = drag.zy + dy;
   } else if (drag.mode === 'flip'){
     // pull the sheet over; leftwards turns it face-down
     var span = Math.max(180, stage.clientWidth * 0.55);
+    S.flipAnim = null;
     S.flip = S.flipTarget = clamp(drag.flip0 - dx / span, 0, 1);
   } else {
     var fspan = Math.max(240, stage.clientWidth * 0.55);
@@ -1214,7 +1285,9 @@ function endDrag(e){
   stage.classList.remove('dragging');
 
   if (d.moved < 7){
-    if (Z.s > 1.02) return;                  // a tap while zoomed does nothing
+    // ignore a tap only when SHE zoomed in; the reading focus zooms by
+    // itself, and taps must keep stepping through the sequence
+    if (!FOCUS.on && Z.s > 1.02) return;
     // on a phone a tap drives the sequence; the magnifier is for reading.
     // with a mouse, dragging is easy, so a click still opens the panel.
     if (isTouch) flyerStep();
@@ -1267,7 +1340,10 @@ measureHint();
 var tipOn = null, tipText = '';
 function updateRotateTip(){
   var portrait = window.innerWidth < 620 && window.innerHeight > window.innerWidth;
-  var want = portrait && (view === 'talk' || S.p > 0.6);
+  // with the reading focus on, upright is actually the larger view — two
+  // panels fill the width, where sideways would fit all three and shrink
+  // them. Only the deck still gains from turning the phone.
+  var want = portrait && (view === 'talk' || (S.p > 0.6 && !FOCUS.on));
   var txt = view === 'talk'
     ? 'Turn your phone sideways for a bigger view'
     : 'Turn your phone sideways for the full spread';
@@ -1702,7 +1778,7 @@ function setView(v){
   if (v === view) return;
   view = v;
   var talk = v === 'talk';
-  resetZoom();
+  resetZoom();          // also clears FOCUS
   if (talk) deckBuild();
   $('tabFlyer').classList.toggle('on', !talk);
   $('tabTalk').classList.toggle('on', talk);
