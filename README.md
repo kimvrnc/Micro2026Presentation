@@ -22,7 +22,11 @@ tucked flap unfolds, exactly as the printed trifold does.
 **Walking talk.** All 18 slides, arrow keys or swipe, a thumbnail strip to jump around,
 and click-to-zoom into any figure at the slide's native 3840 px.
 
-* Keyboard: `←` `→` `Space` page · `Home` `End` · `R` zoom · `1` `2` switch view
+* **Present mode** fills the screen and advances on a tap — the left edge
+  goes back. It hides the page's own chrome with CSS and asks for real
+  fullscreen on top where the browser has the API, so it behaves the same
+  on iOS, which offers no fullscreen for a page.
+* Keyboard: `←` `→` `Space` page · `P` present · `R` zoom · `1` `2` switch view
 * `#talk` in the URL opens straight on the slides
 
 The five authors with LinkedIn profiles are linked from the header and from
