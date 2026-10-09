@@ -806,6 +806,9 @@ var S = {
   hintAmt:1                // space reserved for the hint, eased away on first touch
 };
 
+/* pinch zoom applied on top of the fit scale: 1 = fitted */
+var Z = { s:1, x:0, y:0 };
+
 /* ============================================================
    build the DOM
    ============================================================ */
@@ -990,7 +993,15 @@ function render(){
   // tilt: an object when closed, flat for reading when open
   var tiltP = (1 - S.p) * 7 + S.parY;
 
-  fit.style.transform = 'translateY(' + (-hintH/2).toFixed(1) + 'px) scale(' + s.toFixed(4) + ')';
+  // keep the zoomed sheet from being dragged off the stage
+  var fitS = s * Z.s;
+  var overX = Math.max(0, (wide * fitS - cw) / 2 + 24);
+  var overY = Math.max(0, (PH   * fitS - ch) / 2 + 24);
+  Z.x = clamp(Z.x, -overX, overX);
+  Z.y = clamp(Z.y, -overY, overY);
+
+  fit.style.transform =
+    'translate(' + Z.x.toFixed(1) + 'px,' + (Z.y - hintH/2).toFixed(1) + 'px) scale(' + fitS.toFixed(4) + ')';
   // translate first in the parent frame, so centring survives the flip
   brochure.style.transform =
     'translateX(' + (-cx).toFixed(2) + 'px) rotateX(' + tiltP.toFixed(2) + 'deg) rotateY(' + spin.toFixed(2) + 'deg)';
@@ -1078,6 +1089,7 @@ function flyerStage(){
 }
 
 function flyerStep(){
+  resetZoom();                                        // a step always starts fitted
   switch (flyerStage()){
     case 0: animateTo(COVER_B, 1050); break;          // cover swings open
     case 1: animateTo(1, 1050); break;                // tucked flap unfolds
@@ -1088,7 +1100,7 @@ function flyerStep(){
 
 btnFold.addEventListener('click', flyerStep);
 
-if (isTouch) $('hintText').textContent = 'Tap to open, unfold, turn over, close';
+if (isTouch) $('hintText').textContent = 'Tap to open · pinch to zoom · swipe to turn';
 
 $('btnFlip').addEventListener('click', function(){
   S.flipTarget = S.flipTarget ? 0 : 1;
@@ -1101,47 +1113,118 @@ scrub.addEventListener('input', function(){
   markTouched();
 });
 
-/* drag to scrub the fold */
-var drag = null;
+/* ============================================================
+   stage gestures
+
+   two fingers  → zoom the sheet where it is, and pan it
+   one finger   → open flat: drag turns the sheet over, following the
+                  finger, and snaps at halfway
+                → mid-fold: drag scrubs the fold
+                → zoomed in: drag pans
+   tap          → the next step of the sequence
+   ============================================================ */
+function zoomFlyer(vx, vy, factor){
+  var ns = clamp(Z.s * factor, 1, 6);
+  var k = ns / Z.s;
+  Z.x = vx - (vx - Z.x) * k;      // keep the pinched point under the fingers
+  Z.y = vy - (vy - Z.y) * k;
+  Z.s = ns;
+  markTouched();
+}
+function resetZoom(){ Z.s = 1; Z.x = 0; Z.y = 0; }
+
+/* stage coordinates measured from its centre, which is where .fit sits */
+function stagePoint(cx, cy){
+  var r = stage.getBoundingClientRect();
+  return [cx - r.left - r.width/2, cy - r.top - r.height/2];
+}
+
+var pts = {}, drag = null, pinch = null;
+function nPts(){ return Object.keys(pts).length; }
+
 stage.addEventListener('pointerdown', function(e){
   if (e.button === 1 || e.button === 2) return;
-  drag = { x:e.clientX, y:e.clientY, p:S.p, moved:0, id:e.pointerId,
-           target:e.target.closest ? e.target.closest('.face') : null };
+  pts[e.pointerId] = { x:e.clientX, y:e.clientY };
+  try { stage.setPointerCapture(e.pointerId); } catch(_){}
+
+  if (nPts() === 2){
+    drag = null;
+    var id = Object.keys(pts), a = pts[id[0]], b = pts[id[1]];
+    pinch = { d: Math.max(1, Math.hypot(a.x-b.x, a.y-b.y)), s: Z.s };
+    S.dragging = false;
+    stage.classList.remove('dragging');
+    return;
+  }
+  if (nPts() !== 1) return;
+
+  var open = S.pTarget >= 0.99;
+  drag = {
+    x:e.clientX, y:e.clientY, p:S.p, moved:0,
+    zx:Z.x, zy:Z.y, flip0:S.flipTarget,
+    mode: Z.s > 1.02 ? 'pan' : (isTouch && open ? 'flip' : 'fold'),
+    target: e.target.closest ? e.target.closest('.face') : null
+  };
   S.dragging = true; S.anim = null;
   stage.classList.add('dragging');
-  stage.setPointerCapture(e.pointerId);
 });
 
 stage.addEventListener('pointermove', function(e){
-  // parallax when idle
+  if (pts[e.pointerId]) pts[e.pointerId] = { x:e.clientX, y:e.clientY };
+
+  if (pinch && nPts() >= 2){
+    var id = Object.keys(pts), a = pts[id[0]], b = pts[id[1]];
+    var d = Math.max(1, Math.hypot(a.x-b.x, a.y-b.y));
+    var mid = stagePoint((a.x+b.x)/2, (a.y+b.y)/2);
+    zoomFlyer(mid[0], mid[1], (pinch.s * d / pinch.d) / Z.s);
+    return;
+  }
+
   if (!drag){
-    var r = stage.getBoundingClientRect();
+    var r = stage.getBoundingClientRect();            // idle parallax
     S.parXT = ((e.clientX - r.left)/r.width - 0.5) * 9;
     S.parYT = -((e.clientY - r.top)/r.height - 0.5) * 5;
     return;
   }
+
   var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
   drag.moved = Math.max(drag.moved, Math.hypot(dx, dy));
-  var span = Math.max(240, stage.clientWidth * 0.55);
-  S.p = S.pTarget = clamp(drag.p + dx / span, 0, 1);
+
+  if (drag.mode === 'pan'){
+    Z.x = drag.zx + dx; Z.y = drag.zy + dy;
+  } else if (drag.mode === 'flip'){
+    // pull the sheet over; leftwards turns it face-down
+    var span = Math.max(180, stage.clientWidth * 0.55);
+    S.flip = S.flipTarget = clamp(drag.flip0 - dx / span, 0, 1);
+  } else {
+    var fspan = Math.max(240, stage.clientWidth * 0.55);
+    S.p = S.pTarget = clamp(drag.p + dx / fspan, 0, 1);
+  }
   markTouched();
 });
 
 function endDrag(e){
-  if (!drag) return;
-  var wasClick = drag.moved < 6;
-  var face = drag.target;
-  drag = null; S.dragging = false;
-  stage.classList.remove('dragging');
+  delete pts[e.pointerId];
   try { stage.releasePointerCapture(e.pointerId); } catch(_){}
+  if (nPts() < 2) pinch = null;
+  if (nPts() > 0) { drag = null; return; }   // other fingers still down
 
-  if (wasClick){
+  if (!drag) return;
+  var d = drag; drag = null;
+  S.dragging = false;
+  stage.classList.remove('dragging');
+
+  if (d.moved < 7){
+    if (Z.s > 1.02) return;                  // a tap while zoomed does nothing
     // on a phone a tap drives the sequence; the magnifier is for reading.
     // with a mouse, dragging is easy, so a click still opens the panel.
     if (isTouch) flyerStep();
-    else if (face && face.dataset.pid) openReader('flyer', READ_ORDER.indexOf(face.dataset.pid));
-  } else {
-    // settle to the nearest resting state
+    else if (d.target && d.target.dataset.pid) openReader('flyer', READ_ORDER.indexOf(d.target.dataset.pid));
+    return;
+  }
+
+  if (d.mode === 'flip'){
+    S.flipTarget = S.flip > 0.5 ? 1 : 0;     // snap to whichever side is showing
+  } else if (d.mode === 'fold'){
     if (S.p > 0.93) S.pTarget = 1;
     else if (S.p < 0.06) S.pTarget = 0;
   }
@@ -1150,16 +1233,26 @@ stage.addEventListener('pointerup', endDrag);
 stage.addEventListener('pointercancel', endDrag);
 stage.addEventListener('pointerleave', function(){ S.parXT = 0; S.parYT = 0; });
 
-/* wheel nudges the fold */
-var wheelLock = 0;
+/* wheel scrubs the fold; ctrl+wheel is what a trackpad pinch sends */
 stage.addEventListener('wheel', function(e){
   e.preventDefault();
+  if (e.ctrlKey){
+    var v = stagePoint(e.clientX, e.clientY);
+    zoomFlyer(v[0], v[1], Math.exp(-e.deltaY * 0.01));
+    return;
+  }
   var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
   S.anim = null;
   S.pTarget = clamp(S.pTarget + d * 0.0016, 0, 1);
   S.p = S.pTarget;
   markTouched();
 }, { passive:false });
+
+/* Safari still runs its own page zoom on a pinch; these are its events */
+['gesturestart','gesturechange','gestureend'].forEach(function(ev){
+  stage.addEventListener(ev, function(e){ e.preventDefault(); }, { passive:false });
+  $('present').addEventListener(ev, function(e){ e.preventDefault(); }, { passive:false });
+});
 
 /* measured, not assumed, so the thinner landscape hint reclaims its space.
    Cached because render() runs every frame and offsetHeight forces layout. */
@@ -1475,12 +1568,14 @@ function enterPresent(){
 
 function leavePresent(){
   P.on = false;
+  resetPZoom();
   present.classList.remove('on');
   pImg.removeAttribute('src');
   if (isFull()){ try { exitFS.call(document); } catch(_){} }
 }
 
 function paintPresent(){
+  resetPZoom();
   var id = SETS.talk.ids[D.i];
   pImg.src = presentSrc(id);
   pImg.alt = 'Slide ' + id + (SETS.talk.titles[id] ? ' — ' + SETS.talk.titles[id] : '');
@@ -1506,28 +1601,83 @@ $('pExit').addEventListener('click', function(e){ e.stopPropagation(); leavePres
   document.addEventListener(ev, function(){ if (P.on && !isFull() && reqFS) leavePresent(); });
 });
 
-/* tap to advance; the left edge goes back. A drag is a swipe, not a tap. */
+/* tap to advance; the left edge goes back; two fingers zoom into a figure */
+var PZ = { s:1, x:0, y:0 };
+
+function applyPZoom(){
+  pImg.style.transform = PZ.s === 1 ? ''
+    : 'translate(' + PZ.x.toFixed(1) + 'px,' + PZ.y.toFixed(1) + 'px) scale(' + PZ.s.toFixed(3) + ')';
+}
+function resetPZoom(){ PZ.s = 1; PZ.x = 0; PZ.y = 0; applyPZoom(); }
+
+function zoomPresent(vx, vy, factor){
+  var ns = clamp(PZ.s * factor, 1, 6);
+  var k = ns / PZ.s;
+  PZ.x = vx - (vx - PZ.x) * k;
+  PZ.y = vy - (vy - PZ.y) * k;
+  PZ.s = ns;
+  if (PZ.s === 1){ PZ.x = 0; PZ.y = 0; }
+  else {
+    var b = pImg.getBoundingClientRect();            // keep it on screen
+    var ox = Math.max(0, (b.width  - present.clientWidth )/2 + 20);
+    var oy = Math.max(0, (b.height - present.clientHeight)/2 + 20);
+    PZ.x = clamp(PZ.x, -ox, ox); PZ.y = clamp(PZ.y, -oy, oy);
+  }
+  applyPZoom();
+}
+
 (function(){
-  var sx = 0, sy = 0, moved = 0, live = false;
+  var pp = {}, start = null, pinch = null;
+  var n = function(){ return Object.keys(pp).length; };
   // the exit button is inside the overlay, and pointerup fires before click,
   // so stopPropagation on the button's click cannot save us here
   var onExit = function(e){ return !!(e.target.closest && e.target.closest('.p-exit')); };
+
   present.addEventListener('pointerdown', function(e){
-    if (onExit(e)) { live = false; return; }
-    sx = e.clientX; sy = e.clientY; moved = 0; live = true;
+    if (onExit(e)) return;
+    pp[e.pointerId] = { x:e.clientX, y:e.clientY };
+    if (n() === 2){
+      start = null;
+      var id = Object.keys(pp), a = pp[id[0]], b = pp[id[1]];
+      pinch = { d: Math.max(1, Math.hypot(a.x-b.x, a.y-b.y)), s: PZ.s };
+    } else if (n() === 1){
+      start = { x:e.clientX, y:e.clientY, moved:0, zx:PZ.x, zy:PZ.y };
+    }
   });
+
   present.addEventListener('pointermove', function(e){
-    if (live) moved = Math.max(moved, Math.hypot(e.clientX - sx, e.clientY - sy));
+    if (!pp[e.pointerId]) return;
+    pp[e.pointerId] = { x:e.clientX, y:e.clientY };
+
+    if (pinch && n() >= 2){
+      var id = Object.keys(pp), a = pp[id[0]], b = pp[id[1]];
+      var d = Math.max(1, Math.hypot(a.x-b.x, a.y-b.y));
+      var mx = (a.x+b.x)/2 - present.clientWidth/2;
+      var my = (a.y+b.y)/2 - present.clientHeight/2;
+      zoomPresent(mx, my, (pinch.s * d / pinch.d) / PZ.s);
+      return;
+    }
+    if (start){
+      var dx = e.clientX - start.x, dy = e.clientY - start.y;
+      start.moved = Math.max(start.moved, Math.hypot(dx, dy));
+      if (PZ.s > 1.02){ PZ.x = start.zx + dx; PZ.y = start.zy + dy; applyPZoom(); }
+    }
   });
-  present.addEventListener('pointerup', function(e){
-    if (!live || onExit(e)) { live = false; return; }
-    live = false;
-    var dx = e.clientX - sx, dy = e.clientY - sy;
-    if (moved > 40 && Math.abs(dx) > Math.abs(dy)) { presentStep(dx < 0 ? 1 : -1); return; }
-    if (moved > 12) return;                          // a stray drag, not a tap
+
+  function up(e){
+    var had = n();
+    delete pp[e.pointerId];
+    if (n() < 2) pinch = null;
+    if (n() > 0 || had > 1 || !start || onExit(e)) { if (n() === 0) start = null; return; }
+    var s = start; start = null;
+    if (PZ.s > 1.02) return;                         // zoomed: that was a pan
+    var dx = e.clientX - s.x, dy = e.clientY - s.y;
+    if (s.moved > 40 && Math.abs(dx) > Math.abs(dy)) { presentStep(dx < 0 ? 1 : -1); return; }
+    if (s.moved > 12) return;                        // a stray drag, not a tap
     presentStep(e.clientX < present.clientWidth * 0.28 ? -1 : 1);
-  });
-  present.addEventListener('pointercancel', function(){ live = false; });
+  }
+  present.addEventListener('pointerup', up);
+  present.addEventListener('pointercancel', up);
 })();
 
 /* swipe through slides on a phone */
@@ -1552,6 +1702,7 @@ function setView(v){
   if (v === view) return;
   view = v;
   var talk = v === 'talk';
+  resetZoom();
   if (talk) deckBuild();
   $('tabFlyer').classList.toggle('on', !talk);
   $('tabTalk').classList.toggle('on', talk);

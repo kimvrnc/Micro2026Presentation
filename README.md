@@ -17,8 +17,13 @@ tucked flap unfolds, exactly as the printed trifold does.
 * On a touch screen, **tap anywhere** to walk the sheet through what your
   hands would do: open the cover, unfold the flap, turn it over, close it.
   The button always names the next step. With a mouse, drag or use the slider.
-* The magnifier reads any panel at 600 dpi, with zoom and pan (clicking a
-  panel does the same on a desktop, where dragging is easy anyway)
+* **Pinch to zoom the open sheet** in place and drag to pan — the 600 dpi
+  panels stay sharp well past 3x, so the spread can be read without
+  leaving it. A trackpad pinch (ctrl+wheel) does the same.
+* **Swipe to turn the sheet over** once it is open: the flip follows your
+  finger and snaps to whichever side is showing when you let go.
+* The magnifier reads any single panel at 600 dpi (clicking a panel does the
+  same on a desktop, where dragging is easy anyway)
 * The turn-over button shows the other side of the sheet at any fold angle
 * Keyboard: `←` `→` fold · `F` turn over · `R` read · `Esc` close
 
@@ -26,7 +31,7 @@ tucked flap unfolds, exactly as the printed trifold does.
 and click-to-zoom into any figure at the slide's native 3840 px.
 
 * **Present mode** fills the screen and advances on a tap — the left edge
-  goes back. It hides the page's own chrome with CSS and asks for real
+  goes back, and two fingers zoom into a figure without changing slide. It hides the page's own chrome with CSS and asks for real
   fullscreen on top where the browser has the API, so it behaves the same
   on iOS, which offers no fullscreen for a page.
 * Keyboard: `←` `→` `Space` page · `P` present · `R` zoom · `1` `2` switch view
