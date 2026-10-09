@@ -220,7 +220,7 @@
   .hint svg{opacity:.75}
 
   .rotate-tip{
-    position:absolute; left:50%; top:16px; transform:translateX(-50%);
+    position:absolute; left:50%; top:16px; transform:translateX(-50%); z-index:4;
     font-size:11px; letter-spacing:.08em; color:var(--ink-dim);
     background:rgba(13,12,8,.72); border:1px solid var(--line-soft);
     padding:6px 12px; border-radius:999px; backdrop-filter:blur(8px);
@@ -557,8 +557,9 @@
 
   <div class="stagewrap">
 
+  <div class="rotate-tip" id="rotateTip">Turn your phone sideways for a bigger view</div>
+
   <main class="stage" id="stage">
-    <div class="rotate-tip" id="rotateTip">Turn your phone sideways for the full spread</div>
     <div class="fit" id="fit">
       <div class="ground" id="ground"></div>
       <div class="scene">
@@ -1096,10 +1097,16 @@ window.addEventListener('resize', measureHint);
 window.addEventListener('orientationchange', function(){ setTimeout(measureHint, 120); });
 measureHint();
 
-var tipOn = null;
+/* A 16:9 slide, or an opened trifold, is letterboxed hard in portrait.
+   Nothing to fix in the layout — just say so. */
+var tipOn = null, tipText = '';
 function updateRotateTip(){
-  var narrow = window.innerWidth < 560 && window.innerHeight > window.innerWidth;
-  var want = narrow && S.p > 0.6;
+  var portrait = window.innerWidth < 620 && window.innerHeight > window.innerWidth;
+  var want = portrait && (view === 'talk' || S.p > 0.6);
+  var txt = view === 'talk'
+    ? 'Turn your phone sideways for a bigger view'
+    : 'Turn your phone sideways for the full spread';
+  if (txt !== tipText){ tipText = txt; rotateTip.textContent = txt; }
   if (want !== tipOn){ tipOn = want; rotateTip.classList.toggle('on', want); }
 }
 
