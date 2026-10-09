@@ -14,8 +14,11 @@ One link, two things: the **flyer** and the **walking talk**.
 **Flyer.** The sheet behaves like paper. The front cover swings open, then the
 tucked flap unfolds, exactly as the printed trifold does.
 
-* Drag sideways, scroll, or use the slider to fold and unfold
-* Tap or click a panel to read it at 600 dpi, with zoom and pan
+* On a touch screen, **tap anywhere** to walk the sheet through what your
+  hands would do: open the cover, unfold the flap, turn it over, close it.
+  The button always names the next step. With a mouse, drag or use the slider.
+* The magnifier reads any panel at 600 dpi, with zoom and pan (clicking a
+  panel does the same on a desktop, where dragging is easy anyway)
 * The turn-over button shows the other side of the sheet at any fold angle
 * Keyboard: `←` `→` fold · `F` turn over · `R` read · `Esc` close
 

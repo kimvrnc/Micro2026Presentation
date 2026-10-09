@@ -605,7 +605,7 @@
     </div>
     <div class="hint" id="hint">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 4 12l5 6M15 6l5 6-5 6"/></svg>
-      Drag to unfold · tap a panel to read
+      <span id="hintText">Drag to unfold · tap a panel to read</span>
     </div>
   </main>
 
@@ -792,6 +792,7 @@ var scrub=$('scrub'), scrubLabel=$('scrubLabel'), btnFold=$('btnFold');
 var boot=$('boot'), bootBar=$('bootBar');
 
 var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var isTouch = window.matchMedia('(pointer: coarse)').matches;
 
 /* ---------- state ---------- */
 var S = {
@@ -1015,7 +1016,8 @@ function syncUI(){
   scrub.value = Math.round(S.p * 1000);
   scrub.style.setProperty('--fill', (S.p*100).toFixed(1) + '%');
   scrubLabel.textContent = labelFor(S.p);
-  btnFold.textContent = S.p > 0.5 ? 'Fold' : 'Unfold';
+  var lbl = STEP_LABEL[flyerStage()];
+  if (btnFold.textContent !== lbl) btnFold.textContent = lbl;
 }
 
 /* main loop */
@@ -1062,9 +1064,31 @@ function animateTo(to, dur){
   markTouched();
 }
 
-btnFold.addEventListener('click', function(){
-  animateTo(S.p > 0.5 ? 0 : 1, 1750);
-});
+/* ---------- the flyer as four steps ----------
+   Dragging a 3D fold with a thumb is fiddly, so on a touch screen a tap
+   walks the sheet through what you would do with your hands:
+   open the cover, unfold the flap, turn it over, close it. */
+var STEP_LABEL = ['Open', 'Unfold', 'Turn over', 'Close'];
+
+function flyerStage(){
+  if (S.flipTarget === 1) return 3;                 // turned over → close next
+  if (S.pTarget >= 0.99) return 2;
+  if (S.pTarget >= COVER_B - 0.02) return 1;
+  return 0;
+}
+
+function flyerStep(){
+  switch (flyerStage()){
+    case 0: animateTo(COVER_B, 1050); break;          // cover swings open
+    case 1: animateTo(1, 1050); break;                // tucked flap unfolds
+    case 2: S.flipTarget = 1; markTouched(); break;   // turn the sheet over
+    default: S.flipTarget = 0; animateTo(0, 1500);    // and fold it back up
+  }
+}
+
+btnFold.addEventListener('click', flyerStep);
+
+if (isTouch) $('hintText').textContent = 'Tap to open, unfold, turn over, close';
 
 $('btnFlip').addEventListener('click', function(){
   S.flipTarget = S.flipTarget ? 0 : 1;
@@ -1111,9 +1135,12 @@ function endDrag(e){
   stage.classList.remove('dragging');
   try { stage.releasePointerCapture(e.pointerId); } catch(_){}
 
-  if (wasClick && face && face.dataset.pid){
-    openReader('flyer', READ_ORDER.indexOf(face.dataset.pid));
-  } else if (!wasClick){
+  if (wasClick){
+    // on a phone a tap drives the sequence; the magnifier is for reading.
+    // with a mouse, dragging is easy, so a click still opens the panel.
+    if (isTouch) flyerStep();
+    else if (face && face.dataset.pid) openReader('flyer', READ_ORDER.indexOf(face.dataset.pid));
+  } else {
     // settle to the nearest resting state
     if (S.p > 0.93) S.pTarget = 1;
     else if (S.p < 0.06) S.pTarget = 0;
