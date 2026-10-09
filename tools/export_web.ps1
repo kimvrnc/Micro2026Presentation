@@ -35,7 +35,7 @@ for ($i = 1; $i -le $pres.Slides.Count; $i++) {
 
 # Vector PDF, print intent (text stays vector; images keep more detail)
 $pdf = Join-Path $out 'flyer_hifi.pdf'
-$pres.ExportAsFixedFormat($pdf, 2, 2, 0, 1, 1, 0)
+$pres.ExportAsFixedFormat($pdf, 2, 2)
 Write-Host ("Exported {0}  {1} bytes" -f $pdf, (Get-Item $pdf).Length)
 
 $pres.Close()
